@@ -388,17 +388,17 @@ async function downloadNexdartPlayerCard(pid){
  const infoX=656;
  txt('RANK',infoX,222,14,'#a99c92','900');txt(pos>0?'#'+String(pos).padStart(2,'0'):'—',infoX,319,82,'#ff7820','900');
  line(infoX,342,963,342,'rgba(255,120,31,.55)',2);
- // Imię i nazwisko — wyraźny, ograniczony do ramki panel na pierwszym planie.
- const name=String(p.name||'ZAWODNIK').trim().toUpperCase();
+ // Imię i nazwisko — mocniejsza, bardziej elegancka typografia, idealnie między liniami.
+ const name=String(p.name||'ZAWODNIK').trim().toLocaleUpperCase('pl-PL');
  const nameX=58,nameY=782,nameW=908,nameH=82;
- const nameShade=c.createLinearGradient(0,nameY,0,nameY+nameH);nameShade.addColorStop(0,'rgba(4,4,4,.12)');nameShade.addColorStop(.2,'rgba(4,4,4,.88)');nameShade.addColorStop(1,'rgba(4,4,4,.98)');c.fillStyle=nameShade;c.fillRect(nameX,nameY,nameW,nameH);
+ const nameShade=c.createLinearGradient(0,nameY,0,nameY+nameH);nameShade.addColorStop(0,'rgba(4,4,4,.18)');nameShade.addColorStop(.25,'rgba(4,4,4,.86)');nameShade.addColorStop(1,'rgba(4,4,4,.97)');c.fillStyle=nameShade;c.fillRect(nameX,nameY,nameW,nameH);
  glowLine(nameX,nameY,nameX+nameW,nameY,'#ff7820',2,8);
  c.save();
- // Clip guarantees that even an unusually long name cannot escape the title panel.
  c.beginPath();c.rect(nameX+12,nameY+5,nameW-24,nameH-10);c.clip();
- let nameSize=62;c.textAlign='center';c.textBaseline='middle';c.font='900 '+nameSize+'px Arial';
- while(c.measureText(name).width>nameW-44&&nameSize>16){nameSize--;c.font='900 '+nameSize+'px Arial'}
- c.shadowColor='rgba(255,94,18,.32)';c.shadowBlur=12;c.fillStyle='#fff7f0';c.fillText(name,W/2,nameY+nameH/2,nameW-44);
+ let nameSize=58;c.textAlign='center';c.textBaseline='middle';c.font='800 '+nameSize+'px Arial';
+ while(c.measureText(name).width>nameW-44&&nameSize>18){nameSize--;c.font='800 '+nameSize+'px Arial'}
+ c.shadowColor='rgba(255,94,18,.22)';c.shadowBlur=7;c.fillStyle='#fff7f0';
+ c.fillText(name,W/2,nameY+nameH/2,nameW-44);
  c.restore();
  line(nameX+12,nameY+nameH,nameX+nameW-12,nameY+nameH,'rgba(255,120,31,.68)',2);
  txt('PLAYER RATING',infoX,480,13,'#a99c92','700');
@@ -407,12 +407,12 @@ async function downloadNexdartPlayerCard(pid){
  c.save();c.shadowColor=tierColor;c.shadowBlur=22;hex(812,715,65,'rgba(28,17,10,.97)',tierColor);hex(812,715,54,'rgba(10,10,10,.98)','rgba(255,255,255,.16)');c.restore();
  for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,715);c.rotate(an);path([[-2,-52],[2,-52],[6,-41],[-6,-41]],tierColor);c.restore()}
  txt('✦',812,696,24,tierColor,'900','center');txt(tier,812,723,17,tierColor,'900','center');txt('TIER',812,741,10,'#a99c92','700','center');
- // Poziom zapisany naturalnie, bez wersalików, ozdobników i dodatkowego panelu.
- const rawLevel=String(xp.level||'Debiutant').trim().toLocaleLowerCase('pl-PL');
- const levelName=rawLevel?rawLevel.charAt(0).toLocaleUpperCase('pl-PL')+rawLevel.slice(1):'Debiutant';
- txt('POZIOM',58,917,13,'#a99c92','900');
- let levelSize=38;c.font='900 '+levelSize+'px Arial';while(c.measureText(levelName).width>850&&levelSize>22){levelSize--;c.font='900 '+levelSize+'px Arial'}
- c.save();c.shadowColor='rgba(255,120,31,.5)';c.shadowBlur=12;txt(levelName,58,966,levelSize,'#ff9a43','900');c.restore();
+ // Poziom karty — ustawiony wyżej i wyśrodkowany w swojej strefie.
+ const rawLevel=String(xp.level||'Rookie').trim().toLocaleLowerCase('pl-PL');
+ const levelName=rawLevel?rawLevel.charAt(0).toLocaleUpperCase('pl-PL')+rawLevel.slice(1):'Rookie';
+ txt('POZIOM',58,914,12,'#a99c92','900');
+ let levelSize=36;c.font='800 '+levelSize+'px Arial';while(c.measureText(levelName).width>850&&levelSize>22){levelSize--;c.font='800 '+levelSize+'px Arial'}
+ c.save();c.textBaseline='middle';c.shadowColor='rgba(255,120,31,.38)';c.shadowBlur=9;c.fillStyle='#ff9a43';c.font='800 '+levelSize+'px Arial';c.textAlign='left';c.fillText(levelName,58,958);c.restore();
  glowLine(58,991,966,991,'rgba(255,120,31,.45)',1,5);
  // Stat grid: beveled dark plates with prominent figures.
  txt('STATYSTYKI SEZONU',58,1052,18,'#ff7820','900');txt('LIVE LEAGUE DATA',965,1052,12,'#80766e','700','right');
