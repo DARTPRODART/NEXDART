@@ -389,13 +389,15 @@ async function downloadNexdartPlayerCard(pid){
  txt('RANK',infoX,222,14,'#a99c92','900');txt(pos>0?'#'+String(pos).padStart(2,'0'):'—',infoX,319,82,'#ff7820','900');
  line(infoX,342,963,342,'rgba(255,120,31,.55)',2);
  txt('ZAWODNIK',infoX,382,14,'#a99c92','900');
- let name=String(p.name||'ZAWODNIK').toUpperCase();if(name.length>17)name=name.slice(0,16)+'…';
- txt(name,infoX,430,Math.min(31,Math.floor(460/Math.max(1,name.length)*1.7)),'#fff','900');
- txt('PLAYER RATING',infoX,480,13,'#a99c92','700');txt(rating.toFixed(2),infoX,548,58,tierColor,'900');txt('/ 7.00',infoX+185,548,19,'#92857b','700');
- // Premium tier seal.
- c.save();c.shadowColor=tierColor;c.shadowBlur=20;hex(812,627,91,'rgba(28,17,10,.95)',tierColor);hex(812,627,77,'rgba(10,10,10,.96)','rgba(255,255,255,.13)');c.restore();
- for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,627);c.rotate(an);path([[-2,-72],[2,-72],[7,-57],[-7,-57]],tierColor);c.restore()}
- txt('✦',812,603,30,tierColor,'900','center');txt(tier,812,641,20,tierColor,'900','center');txt('TIER',812,663,11,'#a99c92','700','center');
+ const name=String(p.name||'ZAWODNIK').toUpperCase();
+ c.font='900 31px Arial';let nameSize=31;while(c.measureText(name).width>305&&nameSize>18){nameSize--;c.font='900 '+nameSize+'px Arial'}
+ txt(name,infoX,430,nameSize,'#fff','900');
+ txt('PLAYER RATING',infoX,480,13,'#a99c92','700');
+ txt(rating.toFixed(2),infoX,548,52,tierColor,'900');txt('/ 7.00',infoX+158,548,17,'#92857b','700');
+ // Compact tier medallion placed below the rating, with its own breathing room.
+ c.save();c.shadowColor=tierColor;c.shadowBlur=22;hex(812,715,65,'rgba(28,17,10,.97)',tierColor);hex(812,715,54,'rgba(10,10,10,.98)','rgba(255,255,255,.16)');c.restore();
+ for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,715);c.rotate(an);path([[-2,-52],[2,-52],[6,-41],[-6,-41]],tierColor);c.restore()}
+ txt('✦',812,696,24,tierColor,'900','center');txt(tier,812,723,17,tierColor,'900','center');txt('TIER',812,741,10,'#a99c92','700','center');
  // Level / XP track.
  panel(54,876,916,126,'rgba(16,15,14,.94)','rgba(255,120,31,.48)');
  txt('DOŚWIADCZENIE',80,912,13,'#a99c92','900');txt('LVL '+String(xp.level||1),80,964,37,'#fff','900');txt(String(xp.xp||0)+' XP',258,963,21,'#ff7820','900');
