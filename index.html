@@ -334,38 +334,60 @@ $('newSeasonBtn').onclick=()=>{if(!adminUnlocked)return;if(!confirm('Rozpocząć
 document.addEventListener('click',e=>{const b=e.target.closest('[data-remove-achievement]');if(!b||!adminUnlocked)return;const [pid,title,season]=b.dataset.removeAchievement.split('|');const p=player(pid);p.achievements=(p.achievements||[]).filter(a=>!(a.title===title&&(a.season||'')===season));save();renderProfile(pid);toast('Usunięto ręczne osiągnięcie.');});
 
 async function downloadNexdartPlayerCard(pid){
- const p=player(pid),s=statsFor(pid),rows=tableStats(),pos=rows.findIndex(x=>x.id===pid)+1,r=ratingFor(pid),x=experienceFor(pid);
- const canvas=document.createElement('canvas');canvas.width=900;canvas.height=1200;
- const c=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
- const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#050606');bg.addColorStop(.55,'#17120e');bg.addColorStop(1,'#050606');c.fillStyle=bg;c.fillRect(0,0,W,H);
- c.strokeStyle='#ff781f';c.lineWidth=5;c.strokeRect(22,22,W-44,H-44);
- c.strokeStyle='rgba(255,120,31,.25)';c.lineWidth=1;
- for(let i=0;i<9;i++){c.beginPath();c.moveTo(30,160+i*105);c.lineTo(W-30,160+i*105);c.stroke();}
- c.fillStyle='#ff781f';c.font='900 38px Arial';c.fillText('NEXDART',56,78);
- c.fillStyle='#8c8c8c';c.font='bold 14px Arial';c.fillText('L I G A   D A R T A',59,103);
- c.textAlign='right';c.fillStyle='#ff781f';c.font='bold 20px Arial';c.fillText('PLAYER CARD',W-55,75);c.textAlign='left';
- c.fillStyle='#ff781f';c.font='900 24px Arial';c.fillText(pos>0?'#'+pos:'—',56,166);
- c.fillStyle='#aaa';c.font='bold 13px Arial';c.fillText('MIEJSCE W LIDZE',56,190);
- c.fillStyle='#fff';c.font='900 43px Arial';c.fillText(String(p.name||'ZAWODNIK').toUpperCase().slice(0,24),56,250);
- c.fillStyle='#ff781f';c.font='bold 18px Arial';c.fillText('RATING '+fmt(r.rating,2)+' / 7.00',56,282);
- const ax=56,ay=310,aw=300,ah=330;
- c.fillStyle='#111';c.fillRect(ax,ay,aw,ah);c.strokeStyle='#ff781f';c.lineWidth=2;c.strokeRect(ax,ay,aw,ah);
- if(p.avatar){try{const im=new Image();im.src=p.avatar;await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject});c.save();c.beginPath();c.rect(ax+4,ay+4,aw-8,ah-8);c.clip();const scale=Math.max(aw/im.width,ah/im.height);c.drawImage(im,ax+(aw-im.width*scale)/2,ay+(ah-im.height*scale)/2,im.width*scale,im.height*scale);c.restore();}catch(e){c.fillStyle='#ff781f';c.font='900 70px Arial';c.fillText(String(p.name||'ND').slice(0,2).toUpperCase(),ax+90,ay+180);}}
- else{c.fillStyle='#ff781f';c.font='900 70px Arial';c.fillText(String(p.name||'ND').slice(0,2).toUpperCase(),ax+90,ay+180);c.fillStyle='#777';c.font='bold 15px Arial';c.fillText('NEXDART PLAYER',ax+65,ay+220);}
- const sx=400,sy=315,sw=440;
- const metrics=[['MECZE',s.played],['BILANS',String(s.wins)+'–'+String(s.losses)],['ŚREDNIA / 3 LOTKI',s.played?fmt(s.avg,1):'—'],['WIN RATE',s.played?fmt(s.winRate,0)+'%':'—'],['NAJLEPSZY CHECKOUT',s.checkout||'—'],['NAJWYŻSZA WIZYTA',s.visit||'—']];
- metrics.forEach((m,i)=>{const yy=sy+i*55;c.fillStyle='#171717';c.fillRect(sx,yy,sw,45);c.fillStyle='#999';c.font='bold 13px Arial';c.fillText(m[0],sx+14,yy+17);c.fillStyle='#fff';c.font='bold 21px Arial';c.textAlign='right';c.fillText(String(m[1]),sx+sw-14,yy+31);c.textAlign='left';});
- c.fillStyle='#ff781f';c.font='900 23px Arial';c.fillText('SEZONOWE STATYSTYKI',56,700);
- const lower=[['WYGRANE',s.wins],['PUNKTY ZALICZONE',s.points],['LOTKI RZUCONE',s.darts],['WIZYTY 180',s.count180??0]];
- lower.forEach((m,i)=>{const xx=56+(i%2)*400,yy=725+Math.floor(i/2)*95;c.fillStyle='#111';c.fillRect(xx,yy,370,72);c.strokeStyle='#54301a';c.strokeRect(xx,yy,370,72);c.fillStyle='#999';c.font='bold 13px Arial';c.fillText(m[0],xx+16,yy+24);c.fillStyle='#ff781f';c.font='900 27px Arial';c.fillText(String(m[1]??'—'),xx+16,yy+56);});
- c.fillStyle='#ff781f';c.font='900 22px Arial';c.fillText('OSIĄGNIĘCIA',56,945);
- const badges=[];if(s.winStreak>=3)badges.push('SERIA ZWYCIĘSTW');if(s.count180>0)badges.push('180 NA KONCIE');if(pos===1)badges.push('LIDER LIGI');if(s.checkout>=100)badges.push('CHECKOUT 100+');if(!badges.length)badges.push('WALCZY O KOLEJNE OSIĄGNIĘCIA');
- badges.slice(0,3).forEach((t,i)=>{const xx=56+i*265;c.fillStyle='#20150e';c.strokeStyle='#ff781f';c.lineWidth=1;c.fillRect(xx,970,240,58);c.strokeRect(xx,970,240,58);c.fillStyle='#fff';c.font='bold 13px Arial';c.fillText(t,xx+12,1003);});
- c.fillStyle='#777';c.font='bold 13px Arial';c.fillText('POZIOM '+String(x.level||1)+'  •  '+String(x.xp||0)+' XP',56,1080);
- c.fillStyle='#ff781f';c.font='italic bold 19px Arial';c.fillText('NEXDART  •  WIĘCEJ NIŻ LIGA',56,1130);
- c.fillStyle='#777';c.font='12px Arial';c.fillText('Karta wygenerowana na podstawie aktualnych danych ligi',56,1158);
+ const p=player(pid),st=statsFor(pid),rows=tableStats(),pos=rows.findIndex(x=>x.id===pid)+1,r=ratingFor(pid),xp=experienceFor(pid);
+ const W=1000,H=1400,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+ const c=canvas.getContext('2d');
+ const round=(x,y,w,h,rad,fill,stroke)=>{c.beginPath();c.roundRect(x,y,w,h,rad);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=2;c.stroke()}};
+ const txt=(t,x,y,size,color,weight='700',align='left',font='Arial')=>{c.font=weight+' '+size+'px '+font;c.fillStyle=color;c.textAlign=align;c.fillText(String(t),x,y)};
+ const line=(x1,y1,x2,y2,color,width=1)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=color;c.lineWidth=width;c.stroke()};
+ const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#080909');bg.addColorStop(.42,'#1a100a');bg.addColorStop(1,'#050606');c.fillStyle=bg;c.fillRect(0,0,W,H);
+ // Decorative radial dartboard motif and orange light.
+ const glow=c.createRadialGradient(760,430,20,760,430,520);glow.addColorStop(0,'rgba(255,112,24,.23)');glow.addColorStop(1,'rgba(255,112,24,0)');c.fillStyle=glow;c.fillRect(200,0,800,1000);
+ c.save();c.translate(800,420);for(let i=0;i<6;i++){c.beginPath();c.arc(0,0,105+i*53,-2.8,2.8);c.strokeStyle=i%2?'rgba(255,120,31,.11)':'rgba(255,120,31,.20)';c.lineWidth=i===0?9:3;c.stroke()}c.restore();
+ // Premium outer frame with clipped corner details.
+ c.beginPath();c.moveTo(36,24);c.lineTo(964,24);c.lineTo(976,36);c.lineTo(976,1364);c.lineTo(964,1376);c.lineTo(36,1376);c.lineTo(24,1364);c.lineTo(24,36);c.closePath();c.strokeStyle='#ff781f';c.lineWidth=3;c.stroke();
+ c.beginPath();c.moveTo(38,170);c.lineTo(962,170);c.strokeStyle='rgba(255,120,31,.65)';c.lineWidth=2;c.stroke();
+ txt('NEXDART',58,82,44,'#ff781f','900');txt('L I G A   D A R T A',62,111,14,'#858585','700');
+ txt('PLAYER',940,65,15,'#9c9c9c','700','right');txt('COLLECTOR SERIES',940,91,16,'#ff781f','900','right');
+ // Ranking badge.
+ round(58,132,210,58,'#ff781f','#ff781f');txt(pos>0?'RANK  #'+pos:'UNRANKED',163,169,22,'#090909','900','center');
+ const rating=Math.max(0,Math.min(7,Number(r.rating)||0));
+ const tier=rating>=5.8?'LEGEND':rating>=4.5?'ELITE':rating>=3.2?'GOLD':rating>=1.8?'SILVER':'ROOKIE';
+ const tierColor=tier==='LEGEND'?'#ffd166':tier==='ELITE'?'#ff781f':tier==='GOLD'?'#f4c45e':tier==='SILVER'?'#c7d0d9':'#cd8b58';
+ // Hero panel.
+ round(52,205,896,430,'rgba(13,14,14,.92)','rgba(255,120,31,.65)');
+ // Portrait field with angular backing.
+ c.save();c.beginPath();c.moveTo(76,230);c.lineTo(420,230);c.lineTo(420,606);c.lineTo(76,606);c.closePath();c.clip();
+ const portraitBg=c.createLinearGradient(76,230,420,606);portraitBg.addColorStop(0,'#3a1c0b');portraitBg.addColorStop(1,'#0b0c0c');c.fillStyle=portraitBg;c.fillRect(76,230,344,376);
+ c.strokeStyle='rgba(255,120,31,.3)';for(let i=0;i<9;i++){c.beginPath();c.moveTo(76+i*45,230);c.lineTo(76+i*45,606);c.stroke()}
+ if(p.avatar){try{const im=new Image();im.src=p.avatar;await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject});const scale=Math.max(344/im.width,376/im.height);c.globalAlpha=.94;c.drawImage(im,76+(344-im.width*scale)/2,230+(376-im.height*scale)/2,im.width*scale,im.height*scale);c.globalAlpha=1;const shade=c.createLinearGradient(76,430,76,606);shade.addColorStop(0,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,0,.8)');c.fillStyle=shade;c.fillRect(76,230,344,376)}catch(e){}}
+ if(!p.avatar){c.fillStyle='#ff781f';c.font='900 108px Arial';c.textAlign='center';c.fillText(String(p.name||'ND').slice(0,2).toUpperCase(),248,410);c.textAlign='left'}
+ c.restore();
+ // Portrait edge.
+ c.strokeStyle='#ff781f';c.lineWidth=3;c.strokeRect(76,230,344,376);
+ txt(String(p.name||'ZAWODNIK').toUpperCase().slice(0,24),455,280,34,'#fff','900');
+ txt('RATING',455,324,14,'#9a9a9a','700');txt(rating.toFixed(2)+' / 7.00',455,374,42,tierColor,'900');
+ round(455,395,210,42,'#21150d',tierColor);txt('✦  '+tier,560,422,19,tierColor,'900','center');
+ txt('DOŚWIADCZENIE',455,474,13,'#999','700');txt('LVL '+String(xp.level||1),455,515,28,'#fff','900');txt(String(xp.xp||0)+' XP',455,542,17,'#ff781f','700');
+ round(455,565,425,10,'#2a2a2a',null);round(455,565,425*Math.max(0,Math.min(100,Number(xp.progress)||0))/100,10,'#ff781f',null);
+ txt('KARTA ZAWODNIKA',58,684,20,'#ff781f','900');txt('SEZON '+String(state.seasonName||''),940,684,15,'#929292','700','right');
+ // Stats tiles.
+ const stats=[['MECZE',st.played],['BILANS',String(st.wins)+'–'+String(st.losses)],['WIN RATE',st.played?fmt(st.winRate,0)+'%':'—'],['ŚREDNIA / 3 LOTKI',st.played?fmt(st.avg,1):'—'],['CHECKOUT',st.checkout||'—'],['NAJWYŻSZA WIZYTA',st.visit||'—']];
+ stats.forEach((m,i)=>{const col=i%3,row=Math.floor(i/3),xx=58+col*300,yy=714+row*122;round(xx,yy,280,100,10,'rgba(20,20,20,.96)',i===1?'rgba(255,120,31,.8)':'#37302a');txt(m[0],xx+18,yy+31,13,'#a5a5a5','700');txt(m[1],xx+18,yy+73,31,i===1?'#ff781f':'#fff','900')});
+ // Achievement chips, based only on actual stats.
+ txt('ODZNAKI I OSIĄGNIĘCIA',58,1000,19,'#ff781f','900');
+ const badges=[];if(pos===1)badges.push(['♛','LIDER LIGI']);if(st.winStreak>=3)badges.push(['↗','SERIA '+st.winStreak+' ZWYCIĘSTW']);if(Number(st.count180)>0)badges.push(['180','MAXIMUM']);if(Number(st.checkout)>=100)badges.push(['⚡','CHECKOUT 100+']);if((p.achievements||[]).length)badges.push(['★','OSIĄGNIĘCIA '+p.achievements.length]);if(!badges.length)badges.push(['✦','POLUJ NA PIERWSZĄ ODZNAKĘ']);
+ badges.slice(0,3).forEach((b,i)=>{const xx=58+i*300;round(xx,1023,280,76,8,'#1c120c','#a84f19');round(xx+12,1038,46,46,7,'#ff781f',null);txt(b[0],xx+35,1068,16,'#090909','900','center');txt(b[1],xx+70,1067,13,'#fff','900')});
+ // Bottom career line and brand signature.
+ line(58,1132,942,1132,'rgba(255,120,31,.55)',2);
+ const bottom=[['PUNKTY',st.points],['LOTKI',st.darts],['WIZYTY 180',st.count180??0],['RATING PEWNOŚĆ',String(r.reliability||0)+'%']];
+ bottom.forEach((m,i)=>{const xx=58+i*225;txt(m[0],xx,1168,12,'#888','700');txt(m[1]??'—',xx,1202,23,'#f4f4f4','900')});
+ txt('NEXDART',58,1290,31,'#ff781f','900');txt('WIĘCEJ NIŻ LIGA',60,1317,12,'#999','700');
+ txt('PLAYER CARD  •  '+new Date().getFullYear(),942,1300,13,'#888','700','right');
+ c.save();c.translate(900,1250);c.rotate(-.14);c.strokeStyle='rgba(255,120,31,.65)';c.lineWidth=3;c.strokeRect(-100,-25,190,50);txt('OFFICIAL',-5,7,18,'#ff781f','900','center');c.restore();
  const a=document.createElement('a');a.download='nexdart-karta-'+String(p.name||'zawodnik').toLowerCase().replace(/[^a-z0-9ąćęłńóśźż]+/gi,'-')+'.png';a.href=canvas.toDataURL('image/png');a.click();
 }
+
 document.addEventListener('click',e=>{const b=e.target.closest('[data-player-card]');if(!b)return;downloadNexdartPlayerCard(b.dataset.playerCard).catch(err=>{console.error(err);toast('Nie udało się wygenerować karty zawodnika.');});});
 
 load();delete state.adminPasswordHash;renderAll();renderAdminGate();renderNews();drawDartboard();initializeCloud();
