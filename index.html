@@ -388,21 +388,27 @@ async function downloadNexdartPlayerCard(pid){
  const infoX=656;
  txt('RANK',infoX,222,14,'#a99c92','900');txt(pos>0?'#'+String(pos).padStart(2,'0'):'—',infoX,319,82,'#ff7820','900');
  line(infoX,342,963,342,'rgba(255,120,31,.55)',2);
- txt('ZAWODNIK',infoX,382,14,'#a99c92','900');
- const name=String(p.name||'ZAWODNIK').toUpperCase();
- c.font='900 31px Arial';let nameSize=31;while(c.measureText(name).width>305&&nameSize>18){nameSize--;c.font='900 '+nameSize+'px Arial'}
- txt(name,infoX,430,nameSize,'#fff','900');
+ // Imię i nazwisko są głównym elementem karty — szeroki, kontrastowy pas na pierwszym planie.
+ const name=String(p.name||'ZAWODNIK').trim().toUpperCase();
+ const nameX=58,nameY=782,nameW=908,nameH=82;
+ const nameShade=c.createLinearGradient(0,nameY,0,nameY+nameH);nameShade.addColorStop(0,'rgba(4,4,4,.06)');nameShade.addColorStop(.22,'rgba(4,4,4,.78)');nameShade.addColorStop(1,'rgba(4,4,4,.96)');c.fillStyle=nameShade;c.fillRect(nameX,nameY,nameW,nameH);
+ glowLine(nameX,nameY,nameX+nameW,nameY,'#ff7820',2,10);
+ let nameSize=64;c.font='900 '+nameSize+'px Arial';while(c.measureText(name).width>nameW-28&&nameSize>27){nameSize--;c.font='900 '+nameSize+'px Arial'}
+ c.save();c.shadowColor='rgba(255,94,18,.42)';c.shadowBlur=18;txt(name,W/2,nameY+57,nameSize,'#fff7f0','900','center');c.restore();
+ line(nameX+12,nameY+nameH,nameX+nameW-12,nameY+nameH,'rgba(255,120,31,.68)',2);
  txt('PLAYER RATING',infoX,480,13,'#a99c92','700');
  txt(rating.toFixed(2),infoX,548,52,tierColor,'900');txt('/ 7.00',infoX+158,548,17,'#92857b','700');
  // Compact tier medallion placed below the rating, with its own breathing room.
  c.save();c.shadowColor=tierColor;c.shadowBlur=22;hex(812,715,65,'rgba(28,17,10,.97)',tierColor);hex(812,715,54,'rgba(10,10,10,.98)','rgba(255,255,255,.16)');c.restore();
  for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,715);c.rotate(an);path([[-2,-52],[2,-52],[6,-41],[-6,-41]],tierColor);c.restore()}
  txt('✦',812,696,24,tierColor,'900','center');txt(tier,812,723,17,tierColor,'900','center');txt('TIER',812,741,10,'#a99c92','700','center');
- // Level / XP track.
- panel(54,876,916,126,'rgba(16,15,14,.94)','rgba(255,120,31,.48)');
- txt('DOŚWIADCZENIE',80,912,13,'#a99c92','900');txt('LVL '+String(xp.level||1),80,964,37,'#fff','900');txt(String(xp.xp||0)+' XP',258,963,21,'#ff7820','900');
- txt('POSTĘP DO NASTĘPNEGO POZIOMU',944,912,12,'#a99c92','700','right');
- const prog=Math.max(0,Math.min(100,Number(xp.progress)||0));c.save();c.beginPath();c.roundRect(480,940,464,15,8);c.fillStyle='#30251e';c.fill();c.beginPath();c.roundRect(480,940,464*prog/100,15,8);const pg=c.createLinearGradient(480,0,944,0);pg.addColorStop(0,'#ff9a43');pg.addColorStop(1,'#ff4b0b');c.fillStyle=pg;c.shadowColor='#ff6b1b';c.shadowBlur=14;c.fill();c.restore();txt(prog+'%',944,980,14,'#ff7820','900','right');
+ // Zostaje wyłącznie nazwa poziomu — bez XP, licznika i paska postępu.
+ const levelName=String(xp.level?.name||'DEBIUTANT').toUpperCase();
+ panel(54,890,916,92,'rgba(16,15,14,.94)','rgba(255,120,31,.62)');
+ txt('POZIOM ZAWODNIKA',82,923,13,'#a99c92','900');
+ const levelLabel='✦  '+levelName+'  ✦';
+ let levelSize=34;c.font='900 '+levelSize+'px Arial';while(c.measureText(levelLabel).width>850&&levelSize>20){levelSize--;c.font='900 '+levelSize+'px Arial'}
+ c.save();c.shadowColor='#ff7820';c.shadowBlur=16;txt(levelLabel,W/2,961,levelSize,'#ff9a43','900','center');c.restore();
  // Stat grid: beveled dark plates with prominent figures.
  txt('STATYSTYKI SEZONU',58,1052,18,'#ff7820','900');txt('LIVE LEAGUE DATA',965,1052,12,'#80766e','700','right');
  const stats=[['MECZE',st.played],['BILANS',String(st.wins)+'–'+String(st.losses)],['WIN RATE',st.played?fmt(st.winRate,0)+'%':'—'],['ŚREDNIA / 3 LOTKI',st.played?fmt(st.avg,1):'—'],['CHECKOUT',st.checkout||'—'],['NAJWYŻSZA WIZYTA',st.visit||'—']];
