@@ -369,7 +369,7 @@ async function downloadNexdartPlayerCard(pid){
  txt('RATING',455,324,14,'#9a9a9a','700');txt(rating.toFixed(2)+' / 7.00',455,374,42,tierColor,'900');
  round(455,395,210,42,'#21150d',tierColor);txt('✦  '+tier,560,422,19,tierColor,'900','center');
  txt('DOŚWIADCZENIE',455,474,13,'#999','700');txt('LVL '+String(xp.level||1),455,515,28,'#fff','900');txt(String(xp.xp||0)+' XP',455,542,17,'#ff781f','700');
- round(455,565,425,10,'#2a2a2a',null);round(455,565,425*Math.max(0,Math.min(100,Number(xp.progress)||0))/100,10,'#ff781f',null);
+ round(455,565,425,10,5,'#2a2a2a',null);round(455,565,425*Math.max(0,Math.min(100,Number(xp.progress)||0))/100,10,5,'#ff781f',null);
  txt('KARTA ZAWODNIKA',58,684,20,'#ff781f','900');txt('SEZON '+String(state.seasonName||''),940,684,15,'#929292','700','right');
  // Stats tiles.
  const stats=[['MECZE',st.played],['BILANS',String(st.wins)+'–'+String(st.losses)],['WIN RATE',st.played?fmt(st.winRate,0)+'%':'—'],['ŚREDNIA / 3 LOTKI',st.played?fmt(st.avg,1):'—'],['CHECKOUT',st.checkout||'—'],['NAJWYŻSZA WIZYTA',st.visit||'—']];
