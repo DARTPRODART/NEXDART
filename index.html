@@ -335,60 +335,88 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-remove-ach
 
 async function downloadNexdartPlayerCard(pid){
  const p=player(pid),st=statsFor(pid),rows=tableStats(),pos=rows.findIndex(x=>x.id===pid)+1,r=ratingFor(pid),xp=experienceFor(pid);
- const W=1000,H=1400,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+ const W=1024,H=1536,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
  const c=canvas.getContext('2d');
- const round=(x,y,w,h,rad,fill,stroke)=>{c.beginPath();c.roundRect(x,y,w,h,rad);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=2;c.stroke()}};
- const txt=(t,x,y,size,color,weight='700',align='left',font='Arial')=>{c.font=weight+' '+size+'px '+font;c.fillStyle=color;c.textAlign=align;c.fillText(String(t),x,y)};
+ const txt=(t,x,y,size,color,weight='700',align='left',font='Arial')=>{c.font=weight+' '+size+'px '+font;c.fillStyle=color;c.textAlign=align;c.textBaseline='alphabetic';c.fillText(String(t),x,y)};
+ const path=(pts,fill,stroke=null,width=1)=>{c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=width;c.stroke()}};
+ const panel=(x,y,w,h,fill,stroke='rgba(255,126,35,.42)')=>{c.save();c.shadowColor='rgba(255,92,16,.16)';c.shadowBlur=18;path([[x+14,y],[x+w,y],[x+w,y+h-14],[x+w-14,y+h],[x,y+h],[x,y+14]],fill,stroke,2);c.restore()};
  const line=(x1,y1,x2,y2,color,width=1)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=color;c.lineWidth=width;c.stroke()};
- const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#080909');bg.addColorStop(.42,'#1a100a');bg.addColorStop(1,'#050606');c.fillStyle=bg;c.fillRect(0,0,W,H);
- // Decorative radial dartboard motif and orange light.
- const glow=c.createRadialGradient(760,430,20,760,430,520);glow.addColorStop(0,'rgba(255,112,24,.23)');glow.addColorStop(1,'rgba(255,112,24,0)');c.fillStyle=glow;c.fillRect(200,0,800,1000);
- c.save();c.translate(800,420);for(let i=0;i<6;i++){c.beginPath();c.arc(0,0,105+i*53,-2.8,2.8);c.strokeStyle=i%2?'rgba(255,120,31,.11)':'rgba(255,120,31,.20)';c.lineWidth=i===0?9:3;c.stroke()}c.restore();
- // Premium outer frame with clipped corner details.
- c.beginPath();c.moveTo(36,24);c.lineTo(964,24);c.lineTo(976,36);c.lineTo(976,1364);c.lineTo(964,1376);c.lineTo(36,1376);c.lineTo(24,1364);c.lineTo(24,36);c.closePath();c.strokeStyle='#ff781f';c.lineWidth=3;c.stroke();
- c.beginPath();c.moveTo(38,170);c.lineTo(962,170);c.strokeStyle='rgba(255,120,31,.65)';c.lineWidth=2;c.stroke();
- txt('NEXDART',58,82,44,'#ff781f','900');txt('L I G A   D A R T A',62,111,14,'#858585','700');
- txt('PLAYER',940,65,15,'#9c9c9c','700','right');txt('COLLECTOR SERIES',940,91,16,'#ff781f','900','right');
- // Ranking badge.
- round(58,132,210,58,12,'#ff781f','#ff781f');txt(pos>0?'RANK  #'+pos:'UNRANKED',163,169,22,'#090909','900','center');
- const rating=Math.max(0,Math.min(7,Number(r.rating)||0));
- const tier=rating>=5.8?'LEGEND':rating>=4.5?'ELITE':rating>=3.2?'GOLD':rating>=1.8?'SILVER':'ROOKIE';
- const tierColor=tier==='LEGEND'?'#ffd166':tier==='ELITE'?'#ff781f':tier==='GOLD'?'#f4c45e':tier==='SILVER'?'#c7d0d9':'#cd8b58';
- // Hero panel.
- round(52,205,896,430,18,'rgba(13,14,14,.92)','rgba(255,120,31,.65)');
- // Portrait field with angular backing.
- c.save();c.beginPath();c.moveTo(76,230);c.lineTo(420,230);c.lineTo(420,606);c.lineTo(76,606);c.closePath();c.clip();
- const portraitBg=c.createLinearGradient(76,230,420,606);portraitBg.addColorStop(0,'#3a1c0b');portraitBg.addColorStop(1,'#0b0c0c');c.fillStyle=portraitBg;c.fillRect(76,230,344,376);
- c.strokeStyle='rgba(255,120,31,.3)';for(let i=0;i<9;i++){c.beginPath();c.moveTo(76+i*45,230);c.lineTo(76+i*45,606);c.stroke()}
- if(p.avatar){try{const im=new Image();im.src=p.avatar;await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject});const scale=Math.min(344/im.width,376/im.height);const iw=im.width*scale,ih=im.height*scale;c.save();c.shadowColor='rgba(255,120,31,.38)';c.shadowBlur=18;c.drawImage(im,76+(344-iw)/2,606-ih,iw,ih);c.restore()}catch(e){drawPlayerSilhouette()}}
- else{drawPlayerSilhouette()}
- function drawPlayerSilhouette(){c.save();c.translate(76,230);c.fillStyle='#ff781f';c.shadowColor='rgba(255,120,31,.4)';c.shadowBlur=24;c.beginPath();c.arc(172,105,58,0,Math.PI*2);c.fill();c.beginPath();c.moveTo(72,350);c.lineTo(82,276);c.quadraticCurveTo(92,212,143,194);c.lineTo(143,177);c.quadraticCurveTo(172,193,201,177);c.lineTo(201,194);c.quadraticCurveTo(252,212,262,276);c.lineTo(272,350);c.closePath();c.fill();c.shadowBlur=0;c.fillStyle='#3a1c0b';c.beginPath();c.arc(172,105,43,0,Math.PI*2);c.fill();c.beginPath();c.moveTo(105,350);c.lineTo(112,279);c.quadraticCurveTo(122,226,151,216);c.lineTo(151,203);c.quadraticCurveTo(172,215,193,203);c.lineTo(193,216);c.quadraticCurveTo(222,226,232,279);c.lineTo(239,350);c.closePath();c.fill();c.restore()}
+ const glowLine=(x1,y1,x2,y2,color,width=3,blur=12)=>{c.save();c.shadowColor=color;c.shadowBlur=blur;line(x1,y1,x2,y2,color,width);c.restore()};
+ const hex=(x,y,radius,fill,stroke)=>{c.beginPath();for(let i=0;i<6;i++){const ang=Math.PI/3*i-Math.PI/6,px=x+Math.cos(ang)*radius,py=y+Math.sin(ang)*radius;i?c.lineTo(px,py):c.moveTo(px,py)}c.closePath();c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=2;c.stroke()}};
+ // Dark, layered arena background with warm neon haze.
+ const bg=c.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#050606');bg.addColorStop(.36,'#17100c');bg.addColorStop(.72,'#080909');bg.addColorStop(1,'#020303');c.fillStyle=bg;c.fillRect(0,0,W,H);
+ const haze=c.createRadialGradient(690,430,10,690,430,650);haze.addColorStop(0,'rgba(255,91,15,.34)');haze.addColorStop(.42,'rgba(255,91,15,.10)');haze.addColorStop(1,'rgba(255,91,15,0)');c.fillStyle=haze;c.fillRect(0,0,W,1050);
+ const haze2=c.createRadialGradient(170,1120,5,170,1120,500);haze2.addColorStop(0,'rgba(255,120,31,.12)');haze2.addColorStop(1,'rgba(255,120,31,0)');c.fillStyle=haze2;c.fillRect(0,650,W,800);
+ // Fine grain / technical texture, plus diagonal energy slashes.
+ for(let i=0;i<850;i++){const x=(i*137)%W,y=(i*271)%H,alpha=((i*17)%10)/1000+.018;c.fillStyle='rgba(255,255,255,'+alpha+')';c.fillRect(x,y,1,1)}
+ c.save();c.globalAlpha=.13;for(let i=-500;i<1500;i+=54){line(i,0,i+560,850,'#ff7820',1)}c.restore();
+ // Oversized, low-opacity rank watermark and dartboard rings.
+ txt(String(pos>0?pos:'—').padStart(2,'0'),970,425,330,'rgba(255,120,31,.075)','900','right');
+ c.save();c.translate(790,385);for(let i=0;i<7;i++){c.beginPath();c.arc(0,0,70+i*48,-2.9,2.9);c.strokeStyle=i%2?'rgba(255,120,31,.13)':'rgba(255,120,31,.24)';c.lineWidth=i===0?8:2;c.stroke()}for(let i=0;i<12;i++){const an=i*Math.PI/6;c.beginPath();c.moveTo(Math.cos(an)*70,Math.sin(an)*70);c.lineTo(Math.cos(an)*355,Math.sin(an)*355);c.strokeStyle='rgba(255,120,31,.10)';c.lineWidth=2;c.stroke()}c.restore();
+ // Metallic collector frame with cut corners and illuminated rails.
+ path([[34,20],[960,20],[994,54],[994,1482],[960,1516],[34,1516],[20,1502],[20,34]],'rgba(4,5,5,.56)','#4a2a19',2);
+ path([[42,30],[954,30],[984,60],[984,1476],[954,1506],[42,1506],[30,1494],[30,42]],null,'#ff7820',2);
+ glowLine(58,139,966,139,'#ff7820',3,14);
+ path([[48,180],[70,158],[268,158],[246,180]],'rgba(255,120,31,.16)','#a64b1a',1);
+ txt('NEXDART',58,82,48,'#ff7820','900');txt('DART LEAGUE  /  COLLECTOR SERIES',62,112,15,'#b5aaa2','700');
+ txt('PLAYER EDITION',964,69,16,'#f4f0ec','900','right');txt('OFFICIAL CARD',964,95,13,'#ff7820','700','right');
+ // Large dramatic portrait window.
+ const px=54,py=198,pw=570,ph=650;
+ path([[px+20,py],[px+pw,py],[px+pw,py+ph-20],[px+pw-20,py+ph],[px,py+ph],[px,py+20]],'rgba(10,11,11,.85)','rgba(255,120,31,.8)',2);
+ c.save();path([[px+14,py+14],[px+pw-14,py+14],[px+pw-14,py+ph-18],[px+14,py+ph-18]],null);c.clip();
+ const pbg=c.createLinearGradient(px,py,px+pw,py+ph);pbg.addColorStop(0,'#2b160b');pbg.addColorStop(.55,'#11100e');pbg.addColorStop(1,'#050606');c.fillStyle=pbg;c.fillRect(px,py,pw,ph);
+ const pglow=c.createRadialGradient(px+pw*.63,py+ph*.48,15,px+pw*.63,py+ph*.48,430);pglow.addColorStop(0,'rgba(255,100,20,.32)');pglow.addColorStop(1,'rgba(255,100,20,0)');c.fillStyle=pglow;c.fillRect(px,py,pw,ph);
+ for(let i=0;i<8;i++){path([[px+30+i*66,py+ph],[px+165+i*66,py+70],[px+184+i*66,py+70],[px+48+i*66,py+ph]],'rgba(255,120,31,.035)')}
+ // A bright floor flare behind the cutout.
+ const floor=c.createLinearGradient(px,py+ph-100,px+pw,py+ph);floor.addColorStop(0,'rgba(255,120,31,0)');floor.addColorStop(.5,'rgba(255,120,31,.3)');floor.addColorStop(1,'rgba(255,120,31,0)');c.fillStyle=floor;c.fillRect(px,py+ph-115,pw,115);
  c.restore();
- // Portrait edge.
- c.strokeStyle='#ff781f';c.lineWidth=3;c.strokeRect(76,230,344,376);
- txt(String(p.name||'ZAWODNIK').toUpperCase().slice(0,24),455,280,34,'#fff','900');
- txt('RATING',455,324,14,'#9a9a9a','700');txt(rating.toFixed(2)+' / 7.00',455,374,42,tierColor,'900');
- round(455,395,210,42,10,'#21150d',tierColor);txt('✦  '+tier,560,422,19,tierColor,'900','center');
- txt('DOŚWIADCZENIE',455,474,13,'#999','700');txt('LVL '+String(xp.level||1),455,515,28,'#fff','900');txt(String(xp.xp||0)+' XP',455,542,17,'#ff781f','700');
- round(455,565,425,10,5,'#2a2a2a',null);round(455,565,425*Math.max(0,Math.min(100,Number(xp.progress)||0))/100,10,5,'#ff781f',null);
- txt('KARTA ZAWODNIKA',58,684,20,'#ff781f','900');txt('SEZON '+String(state.seasonName||''),940,684,15,'#929292','700','right');
- // Stats tiles.
+ if(p.avatar){
+  try{const im=new Image();im.src=p.avatar;await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject});
+   const maxW=520,maxH=610,scale=Math.min(maxW/im.width,maxH/im.height),iw=im.width*scale,ih=im.height*scale,ix=px+(pw-iw)/2,iy=py+ph-14-ih;
+   c.save();c.shadowColor='#ff6b1b';c.shadowBlur=32;c.drawImage(im,ix,iy,iw,ih);c.restore();
+   // Subtle orange base light to integrate the cutout into the card.
+   const base=c.createLinearGradient(0,py+ph-95,0,py+ph);base.addColorStop(0,'rgba(255,100,20,0)');base.addColorStop(1,'rgba(255,100,20,.22)');c.fillStyle=base;c.fillRect(px+14,py+ph-95,pw-28,75);
+  }catch(e){txt('NEXDART PLAYER',px+pw/2,py+ph/2,28,'#ff7820','900','center')}
+ }else{
+  c.save();c.shadowColor='#ff7820';c.shadowBlur=36;c.fillStyle='#ff7820';c.beginPath();c.arc(px+pw/2,py+235,92,0,Math.PI*2);c.fill();c.beginPath();c.moveTo(px+100,py+ph-20);c.lineTo(px+132,py+410);c.quadraticCurveTo(px+pw/2,py+325,px+pw-132,py+410);c.lineTo(px+pw-100,py+ph-20);c.closePath();c.fill();c.restore();
+ }
+ // Corner clamps and portrait edge light.
+ glowLine(px+18,py+18,px+130,py+18,'#ff7820',4,12);glowLine(px+pw-135,py+ph-18,px+pw-18,py+ph-18,'#ff7820',4,12);
+ // Name and player identity panel.
+ const rating=Math.max(0,Math.min(7,Number(r.rating)||0)),tier=rating>=5.8?'LEGEND':rating>=4.5?'ELITE':rating>=3.2?'GOLD':rating>=1.8?'SILVER':'ROOKIE';
+ const tierColor=tier==='LEGEND'?'#ffe09a':tier==='ELITE'?'#ff7820':tier==='GOLD'?'#f4c45e':tier==='SILVER'?'#d5e0e8':'#d99b6b';
+ const infoX=656;
+ txt('RANK',infoX,222,14,'#a99c92','900');txt(pos>0?'#'+String(pos).padStart(2,'0'):'—',infoX,319,82,'#ff7820','900');
+ line(infoX,342,963,342,'rgba(255,120,31,.55)',2);
+ txt('ZAWODNIK',infoX,382,14,'#a99c92','900');
+ let name=String(p.name||'ZAWODNIK').toUpperCase();if(name.length>17)name=name.slice(0,16)+'…';
+ txt(name,infoX,430,Math.min(31,Math.floor(460/Math.max(1,name.length)*1.7)),'#fff','900');
+ txt('PLAYER RATING',infoX,480,13,'#a99c92','700');txt(rating.toFixed(2),infoX,548,58,tierColor,'900');txt('/ 7.00',infoX+185,548,19,'#92857b','700');
+ // Premium tier seal.
+ c.save();c.shadowColor=tierColor;c.shadowBlur=20;hex(812,627,91,'rgba(28,17,10,.95)',tierColor);hex(812,627,77,'rgba(10,10,10,.96)','rgba(255,255,255,.13)');c.restore();
+ for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,627);c.rotate(an);path([[-2,-72],[2,-72],[7,-57],[-7,-57]],tierColor);c.restore()}
+ txt('✦',812,603,30,tierColor,'900','center');txt(tier,812,641,20,tierColor,'900','center');txt('TIER',812,663,11,'#a99c92','700','center');
+ // Level / XP track.
+ panel(54,876,916,126,'rgba(16,15,14,.94)','rgba(255,120,31,.48)');
+ txt('DOŚWIADCZENIE',80,912,13,'#a99c92','900');txt('LVL '+String(xp.level||1),80,964,37,'#fff','900');txt(String(xp.xp||0)+' XP',258,963,21,'#ff7820','900');
+ txt('POSTĘP DO NASTĘPNEGO POZIOMU',944,912,12,'#a99c92','700','right');
+ const prog=Math.max(0,Math.min(100,Number(xp.progress)||0));c.save();c.beginPath();c.roundRect(480,940,464,15,8);c.fillStyle='#30251e';c.fill();c.beginPath();c.roundRect(480,940,464*prog/100,15,8);const pg=c.createLinearGradient(480,0,944,0);pg.addColorStop(0,'#ff9a43');pg.addColorStop(1,'#ff4b0b');c.fillStyle=pg;c.shadowColor='#ff6b1b';c.shadowBlur=14;c.fill();c.restore();txt(prog+'%',944,980,14,'#ff7820','900','right');
+ // Stat grid: beveled dark plates with prominent figures.
+ txt('STATYSTYKI SEZONU',58,1052,18,'#ff7820','900');txt('LIVE LEAGUE DATA',965,1052,12,'#80766e','700','right');
  const stats=[['MECZE',st.played],['BILANS',String(st.wins)+'–'+String(st.losses)],['WIN RATE',st.played?fmt(st.winRate,0)+'%':'—'],['ŚREDNIA / 3 LOTKI',st.played?fmt(st.avg,1):'—'],['CHECKOUT',st.checkout||'—'],['NAJWYŻSZA WIZYTA',st.visit||'—']];
- stats.forEach((m,i)=>{const col=i%3,row=Math.floor(i/3),xx=58+col*300,yy=714+row*122;round(xx,yy,280,100,10,'rgba(20,20,20,.96)',i===1?'rgba(255,120,31,.8)':'#37302a');txt(m[0],xx+18,yy+31,13,'#a5a5a5','700');txt(m[1],xx+18,yy+73,31,i===1?'#ff781f':'#fff','900')});
- // Achievement chips, based only on actual stats.
- txt('ODZNAKI I OSIĄGNIĘCIA',58,1000,19,'#ff781f','900');
- const badges=[];if(pos===1)badges.push(['♛','LIDER LIGI']);if(st.winStreak>=3)badges.push(['↗','SERIA '+st.winStreak+' ZWYCIĘSTW']);if(Number(st.count180)>0)badges.push(['180','MAXIMUM']);if(Number(st.checkout)>=100)badges.push(['⚡','CHECKOUT 100+']);if((p.achievements||[]).length)badges.push(['★','OSIĄGNIĘCIA '+p.achievements.length]);if(!badges.length)badges.push(['✦','POLUJ NA PIERWSZĄ ODZNAKĘ']);
- badges.slice(0,3).forEach((b,i)=>{const xx=58+i*300;round(xx,1023,280,76,8,'#1c120c','#a84f19');round(xx+12,1038,46,46,7,'#ff781f',null);txt(b[0],xx+35,1068,16,'#090909','900','center');txt(b[1],xx+70,1067,13,'#fff','900')});
- // Bottom career line and brand signature.
- line(58,1132,942,1132,'rgba(255,120,31,.55)',2);
- const bottom=[['PUNKTY',st.points],['LOTKI',st.darts],['WIZYTY 180',st.count180??0],['RATING PEWNOŚĆ',String(r.reliability||0)+'%']];
- bottom.forEach((m,i)=>{const xx=58+i*225;txt(m[0],xx,1168,12,'#888','700');txt(m[1]??'—',xx,1202,23,'#f4f4f4','900')});
- txt('NEXDART',58,1290,31,'#ff781f','900');txt('WIĘCEJ NIŻ LIGA',60,1317,12,'#999','700');
- txt('PLAYER CARD  •  '+new Date().getFullYear(),942,1300,13,'#888','700','right');
- c.save();c.translate(900,1250);c.rotate(-.14);c.strokeStyle='rgba(255,120,31,.65)';c.lineWidth=3;c.strokeRect(-100,-25,190,50);txt('OFFICIAL',-5,7,18,'#ff781f','900','center');c.restore();
+ stats.forEach((m,i)=>{const col=i%3,row=Math.floor(i/3),x=58+col*306,y=1080+row*112;panel(x,y,282,91,'rgba(15,16,16,.96)',i===1?'rgba(255,120,31,.9)':'rgba(255,255,255,.12)');path([[x+1,y+1],[x+8,y+1],[x+1,y+8]],'#ff7820');txt(m[0],x+18,y+29,12,'#9c9189','700');txt(m[1],x+18,y+69,29,i===1?'#ff7820':'#f7f3ef','900');});
+ // Achievement ribbons.
+ txt('ODZNAKI I OSIĄGNIĘCIA',58,1325,17,'#ff7820','900');
+ const badges=[];if(pos===1)badges.push(['♛','LIDER LIGI']);if(st.winStreak>=3)badges.push(['↗','SERIA '+st.winStreak]);if(Number(st.count180)>0)badges.push(['180','MAXIMUM']);if(Number(st.checkout)>=100)badges.push(['⚡','CHECKOUT 100+']);if((p.achievements||[]).length)badges.push(['★','OSIĄGNIĘCIA '+p.achievements.length]);if(!badges.length)badges.push(['✦','KOLEJNY CEL CZEKA']);
+ badges.slice(0,3).forEach((b,i)=>{const x=58+i*306,y=1350;panel(x,y,282,66,'rgba(31,18,10,.96)','#9a491e');c.save();c.shadowColor='#ff7820';c.shadowBlur=10;hex(x+35,y+33,23,'#ff7820');c.restore();txt(b[0],x+35,y+39,15,'#090909','900','center');txt(b[1],x+67,y+38,12,'#fff','900')});
+ // Footer branding and card serial.
+ line(58,1438,966,1438,'rgba(255,120,31,.45)',1);
+ txt('NEXDART',58,1478,28,'#ff7820','900');txt('WIĘCEJ NIŻ LIGA',60,1496,10,'#9a8d82','700');
+ txt('PLAYER CARD  •  '+new Date().getFullYear(),965,1474,12,'#9a8d82','700','right');txt('ND / '+String(Math.max(1,pos)).padStart(3,'0')+'  •  '+String(pid).slice(-6).toUpperCase(),965,1495,10,'#ff7820','700','right');
+ // Small dart emblem in the frame.
+ c.save();c.translate(924,180);c.rotate(-.6);glowLine(-22,0,22,0,'#ff7820',3,8);path([[22,0],[7,-10],[7,10]],'#ff7820');c.restore();
  const a=document.createElement('a');a.download='nexdart-karta-'+String(p.name||'zawodnik').toLowerCase().replace(/[^a-z0-9ąćęłńóśźż]+/gi,'-')+'.png';a.href=canvas.toDataURL('image/png');a.click();
 }
-
 document.addEventListener('click',e=>{const b=e.target.closest('[data-player-card]');if(!b)return;downloadNexdartPlayerCard(b.dataset.playerCard).catch(err=>{console.error(err);toast('Nie udało się wygenerować karty zawodnika.');});});
 
 load();delete state.adminPasswordHash;renderAll();renderAdminGate();renderNews();drawDartboard();initializeCloud();
