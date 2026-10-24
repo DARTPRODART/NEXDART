@@ -350,12 +350,12 @@ async function downloadNexdartPlayerCard(pid){
  txt('NEXDART',58,82,44,'#ff781f','900');txt('L I G A   D A R T A',62,111,14,'#858585','700');
  txt('PLAYER',940,65,15,'#9c9c9c','700','right');txt('COLLECTOR SERIES',940,91,16,'#ff781f','900','right');
  // Ranking badge.
- round(58,132,210,58,'#ff781f','#ff781f');txt(pos>0?'RANK  #'+pos:'UNRANKED',163,169,22,'#090909','900','center');
+ round(58,132,210,58,12,'#ff781f','#ff781f');txt(pos>0?'RANK  #'+pos:'UNRANKED',163,169,22,'#090909','900','center');
  const rating=Math.max(0,Math.min(7,Number(r.rating)||0));
  const tier=rating>=5.8?'LEGEND':rating>=4.5?'ELITE':rating>=3.2?'GOLD':rating>=1.8?'SILVER':'ROOKIE';
  const tierColor=tier==='LEGEND'?'#ffd166':tier==='ELITE'?'#ff781f':tier==='GOLD'?'#f4c45e':tier==='SILVER'?'#c7d0d9':'#cd8b58';
  // Hero panel.
- round(52,205,896,430,'rgba(13,14,14,.92)','rgba(255,120,31,.65)');
+ round(52,205,896,430,18,'rgba(13,14,14,.92)','rgba(255,120,31,.65)');
  // Portrait field with angular backing.
  c.save();c.beginPath();c.moveTo(76,230);c.lineTo(420,230);c.lineTo(420,606);c.lineTo(76,606);c.closePath();c.clip();
  const portraitBg=c.createLinearGradient(76,230,420,606);portraitBg.addColorStop(0,'#3a1c0b');portraitBg.addColorStop(1,'#0b0c0c');c.fillStyle=portraitBg;c.fillRect(76,230,344,376);
@@ -368,7 +368,7 @@ async function downloadNexdartPlayerCard(pid){
  c.strokeStyle='#ff781f';c.lineWidth=3;c.strokeRect(76,230,344,376);
  txt(String(p.name||'ZAWODNIK').toUpperCase().slice(0,24),455,280,34,'#fff','900');
  txt('RATING',455,324,14,'#9a9a9a','700');txt(rating.toFixed(2)+' / 7.00',455,374,42,tierColor,'900');
- round(455,395,210,42,'#21150d',tierColor);txt('✦  '+tier,560,422,19,tierColor,'900','center');
+ round(455,395,210,42,10,'#21150d',tierColor);txt('✦  '+tier,560,422,19,tierColor,'900','center');
  txt('DOŚWIADCZENIE',455,474,13,'#999','700');txt('LVL '+String(xp.level||1),455,515,28,'#fff','900');txt(String(xp.xp||0)+' XP',455,542,17,'#ff781f','700');
  round(455,565,425,10,5,'#2a2a2a',null);round(455,565,425*Math.max(0,Math.min(100,Number(xp.progress)||0))/100,10,5,'#ff781f',null);
  txt('KARTA ZAWODNIKA',58,684,20,'#ff781f','900');txt('SEZON '+String(state.seasonName||''),940,684,15,'#929292','700','right');
