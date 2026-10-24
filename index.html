@@ -393,7 +393,7 @@ async function downloadNexdartPlayerCard(pid){
  const nameX=58,nameY=782,nameW=908,nameH=82;
  const nameShade=c.createLinearGradient(0,nameY,0,nameY+nameH);nameShade.addColorStop(0,'rgba(4,4,4,.06)');nameShade.addColorStop(.22,'rgba(4,4,4,.78)');nameShade.addColorStop(1,'rgba(4,4,4,.96)');c.fillStyle=nameShade;c.fillRect(nameX,nameY,nameW,nameH);
  glowLine(nameX,nameY,nameX+nameW,nameY,'#ff7820',2,10);
- let nameSize=64;c.font='900 '+nameSize+'px Arial';while(c.measureText(name).width>nameW-28&&nameSize>27){nameSize--;c.font='900 '+nameSize+'px Arial'}
+ let nameSize=64;c.font='900 '+nameSize+'px Arial';while(c.measureText(name).width>nameW-28&&nameSize>18){nameSize--;c.font='900 '+nameSize+'px Arial'}
  c.save();c.shadowColor='rgba(255,94,18,.42)';c.shadowBlur=18;txt(name,W/2,nameY+57,nameSize,'#fff7f0','900','center');c.restore();
  line(nameX+12,nameY+nameH,nameX+nameW-12,nameY+nameH,'rgba(255,120,31,.68)',2);
  txt('PLAYER RATING',infoX,480,13,'#a99c92','700');
