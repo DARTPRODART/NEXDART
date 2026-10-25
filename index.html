@@ -271,7 +271,9 @@ button,input,select,textarea{max-width:100%;min-height:42px}
   #profilePanel .profile-head>div:nth-child(2){min-width:0;grid-column:2;grid-row:1}
   #profilePanel .profile-head h2{overflow-wrap:anywhere;word-break:normal}
   #profilePanel .profile-head p{overflow-wrap:anywhere}
-  #profilePanel .profile-head button{min-width:0;max-width:100%;white-space:normal}
+  #profilePanel .profile-head button{min-width:0;max-width:100%;white-space:normal;grid-column:1 / -1;width:100%;justify-self:stretch}
+  #profilePanel .profile-head #closeProfile{grid-column:1 / -1}
+  #profilePanel .profile-head [data-player-card]{grid-column:1 / -1}
 }
 </style></head>
 <body><main class="app"><div class="wrap">
