@@ -1,4 +1,4 @@
-import { json, env, isAdmin, dbRequest } from "./_shared.mjs";
+import { json, env, isAdmin, dbRequest, externalizeImages } from "./_shared.mjs";
 
 function publicState(value) {
   const copy = JSON.parse(JSON.stringify(value));
@@ -42,7 +42,7 @@ export default async (request) => {
     if (!body?.data || !Array.isArray(body.data.players) || !Array.isArray(body.data.matches)) {
       return json({ error: "Nieprawidłowy format danych ligi." }, 400);
     }
-    const data = JSON.parse(JSON.stringify(body.data));
+    const data = await externalizeImages(JSON.parse(JSON.stringify(body.data)));
     delete data.adminPasswordHash;
     const updatedAt = new Date().toISOString();
     const response = await dbRequest("league_state?on_conflict=id", {
