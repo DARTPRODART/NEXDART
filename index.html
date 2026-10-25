@@ -79,8 +79,8 @@ button,input,select,textarea{max-width:100%;min-height:42px}
 .wrap{width:100%;min-width:0}
 .panel,.stat,.player-card,.news-card,.leaderboard-card,.report-item,.rating-panel,.home-news,.dartboard-panel,.dart-tools>.panel{min-width:0}
 .grid2>*,.form-grid>*,.stats>*,.player-grid>*,.news-grid>*,.home-news-layout>*,.home-news-feature>*{min-width:0}
-.nav{max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:0 0 5px;scrollbar-width:thin}
-.nav button{flex:0 0 auto;white-space:nowrap}
+.nav{max-width:100%;display:flex;flex-wrap:wrap;overflow:visible;gap:8px;padding:0 0 5px}
+.nav button{flex:0 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere}
 .table-wrap{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 @media(max-width:850px){
  .wrap{padding:12px}
