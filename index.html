@@ -126,10 +126,12 @@ let adminUnlocked=false;
 const $=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Aktualności: synchronizacja online przez bezpieczną Netlify Function; IndexedDB służy tylko do migracji danych ze starej wersji.
 const NEWS_DB='nexdart_content_v1', NEWS_STORE='articles'; let newsArticles=[]; let newsDbPromise=null; let newsDraftImage=null;
-function openNewsDb(){if(!('indexedDB' in window))return Promise.reject(new Error('IndexedDB niedostępne'));if(newsDbPromise)return newsDbPromise;newsDbPromise=new Promise((resolve,reject)=>{const req=indexedDB.open(NEWS_DB,1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(NEWS_STORE)){const st=db.createObjectStore(NEWS_STORE,{keyPath:'id'});st.createIndex('updatedAt','updatedAt',{unique:false});}};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Nie udało się otworzyć starej bazy aktualności'));});return newsDbPromise}
+function openNewsDb(){if(!('indexedDB' in window))return Promise.reject(new Error('IndexedDB niedostępne'));if(newsDbPromise)return newsDbPromise;newsDbPromise=new Promise((resolve,reject)=>{const req=indexedDB.open(NEWS_DB,2);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(NEWS_STORE)){const st=db.createObjectStore(NEWS_STORE,{keyPath:'id'});st.createIndex('updatedAt','updatedAt',{unique:false});}if(!db.objectStoreNames.contains('remote_public_articles'))db.createObjectStore('remote_public_articles',{keyPath:'id'});if(!db.objectStoreNames.contains('remote_admin_articles'))db.createObjectStore('remote_admin_articles',{keyPath:'id'});};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Nie udało się otworzyć starej bazy aktualności'));});return newsDbPromise}
+async function getCachedRemoteArticles(scope){try{const db=await openNewsDb();return await new Promise((resolve,reject)=>{const req=db.transaction(scope==='admin'?'remote_admin_articles':'remote_public_articles','readonly').objectStore(scope==='admin'?'remote_admin_articles':'remote_public_articles').getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error)})}catch(e){return null}}
+async function setCachedRemoteArticles(scope,articles){const db=await openNewsDb();return await new Promise((resolve,reject)=>{const name=scope==='admin'?'remote_admin_articles':'remote_public_articles';const tx=db.transaction(name,'readwrite');const store=tx.objectStore(name);store.clear();for(const article of articles||[])store.put(article);tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('Nie udało się zapisać lokalnej kopii aktualności'));tx.onabort=()=>reject(tx.error||new Error('Zapis lokalnej kopii aktualności przerwany'))})}
 async function getLocalArticles(){try{const db=await openNewsDb();return await new Promise((resolve,reject)=>{const r=db.transaction(NEWS_STORE,'readonly').objectStore(NEWS_STORE).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)})}catch(e){try{return JSON.parse(localStorage.getItem('nexdart_articles_fallback')||'[]')}catch(_){return []}}}
 async function apiRequest(name,method='GET',body,query=''){const token=sessionStorage.getItem('nexdart_admin_token')||'';const url='/.netlify/functions/'+name+(query?(query.startsWith('?')?query:'?'+query):'');const headers={};if(token)headers.Authorization='Bearer '+token;if(body!==undefined)headers['Content-Type']='application/json';const response=await fetch(url,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.error||('Błąd serwera HTTP '+response.status));return data}
-async function getArticles(){try{return await apiRequest('articles','GET')}catch(e){console.warn('Nie udało się pobrać aktualności online:',e);return (await getLocalArticles()).filter(a=>adminUnlocked||a.published)}}
+async function getArticles(){const scope=adminUnlocked?'admin':'public',signatureKey='nexdart_articles_signature_'+scope;try{const meta=await apiRequest('articles','GET',undefined,'meta=1');const signature=JSON.stringify((Array.isArray(meta)?meta:[]).map(a=>[a.id,a.updated_at,!!a.published]));const cached=await getCachedRemoteArticles(scope);if(cached&&localStorage.getItem(signatureKey)===signature&&cached.length===meta.length)return cached;const fresh=await apiRequest('articles','GET');await setCachedRemoteArticles(scope,fresh);localStorage.setItem(signatureKey,signature);return fresh}catch(e){console.warn('Nie udało się pobrać aktualności online:',e);const cached=await getCachedRemoteArticles(scope);if(cached&&cached.length)return cached;return (await getLocalArticles()).filter(a=>adminUnlocked||a.published)}}
 async function saveArticle(article){if(!adminUnlocked)throw new Error('Zaloguj się jako administrator, aby zapisywać aktualności.');const normalized={...article,id:article.id||('news_'+(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now())),createdAt:article.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};await apiRequest('articles','POST',normalized);return normalized}
 async function deleteArticle(id){if(!adminUnlocked)throw new Error('Tylko administrator może usuwać aktualności.');await apiRequest('articles','DELETE',undefined,'id='+encodeURIComponent(id))}
 async function migrateLocalArticles(){if(!adminUnlocked)return;try{const remote=await apiRequest('articles','GET');if(remote.length)return;const local=await getLocalArticles();for(const a of local){if(a&&a.title&&a.content)await apiRequest('articles','POST',{...a,id:a.id||('news_'+Date.now()+Math.random().toString(36).slice(2))})}}catch(e){console.warn('Migracja starych aktualności pominięta:',e)}}
@@ -158,7 +160,73 @@ async function writeCloudState(snapshot){if(!adminUnlocked)throw new Error('Zalo
 async function pushCloudState(){if(!cloudReady||cloudApplying||!adminUnlocked)return;const snapshot=JSON.parse(JSON.stringify(state));delete snapshot.adminPasswordHash;try{await writeCloudState(snapshot);cloudLastJSON=JSON.stringify(state);cloudStatus('Połączono ze wspólną bazą. Zmiany administratora synchronizują się automatycznie.');if(JSON.stringify(state)!==cloudLastJSON){clearTimeout(cloudWriteTimer);cloudWriteTimer=setTimeout(()=>pushCloudState(),350)}}catch(e){cloudStatus('Nie udało się zapisać online. Sprawdź logowanie i konfigurację Netlify/Supabase.',false);console.error(e)}}
 function applyCloudState(v){const localAvatars=new Map((state.players||[]).filter(p=>p&&p.id&&p.avatar).map(p=>[p.id,p.avatar]));v={...v,players:(v.players||[]).map(p=>({...p,...(!p.avatar&&localAvatars.has(p.id)?{avatar:localAvatars.get(p.id)}:{})}))};cloudApplying=true;const form=$('resultForm');const savedFormValues={};if(form){form.querySelectorAll('input,select,textarea').forEach(el=>{if(el.id)savedFormValues[el.id]={value:el.value,checked:el.checked,type:el.type}})}try{localStorage.setItem(KEY,JSON.stringify(v));state={players:defaultNames.map((name,i)=>({id:'p'+(i+1),name,achievements:[]})),activePlayerIds:defaultNames.map((_,i)=>'p'+(i+1)),matches:[],winPoints:3,leagueName:'NEXDART',gameStart:301,outMode:'single',seasonNumber:1,seasonName:'Sezon 1',archives:[],tournaments:[],activeTournamentId:'',bannerImage:'',backgroundImage:''};load();delete state.adminPasswordHash;renderAll();renderAdminGate();renderNews();drawDartboard();if(form){form.querySelectorAll('input,select,textarea').forEach(el=>{const saved=savedFormValues[el.id];if(!saved)return;if(el.tagName==='SELECT'){if(Array.from(el.options).some(o=>o.value===saved.value))el.value=saved.value}else if(el.type==='checkbox'||el.type==='radio'){el.checked=saved.checked}else{el.value=saved.value}})}cloudLastJSON=JSON.stringify(state)}finally{cloudApplying=false}}
 async function checkAdminToken(){try{const result=await apiRequest('state','GET',undefined,'checkAdmin=1');return !!result.isAdmin}catch(e){return false}}
-async function initializeCloud(){try{const row=await readCloudState();if(row&&validCloudState(row.data)){cloudHasState=true;cloudLastUpdatedAt=row.updated_at||null;applyCloudState(row.data);cloudLastJSON=JSON.stringify(state);cloudStatus('Połączono ze wspólną bazą. Dane są dostępne online.')}else{cloudHasState=false;cloudReady=true;cloudLastJSON=JSON.stringify(state);cloudStatus('Baza online gotowa. Zaloguj się jako administrator, aby zapisać dane.')}cloudReady=true;if(sessionStorage.getItem('nexdart_admin_token')){if(await checkAdminToken()){adminUnlocked=true;const adminRow=await readCloudState();if(adminRow&&validCloudState(adminRow.data)){cloudHasState=true;cloudLastUpdatedAt=adminRow.updated_at||cloudLastUpdatedAt;applyCloudState(adminRow.data)}renderAdminGate();renderAll();await migrateLocalArticles();await renderNews();cloudStatus('Zalogowano jako administrator. Synchronizacja online aktywna.')}else{sessionStorage.removeItem('nexdart_admin_token');adminUnlocked=false;renderAdminGate()}}if(!cloudHasState&&adminUnlocked)await pushCloudState()}catch(e){cloudReady=false;cloudStatus('Nie udało się połączyć z bazą online. Sprawdź wdrożenie i zmienne Netlify.',false);console.error(e)}setInterval(async()=>{if(!cloudReady||cloudPollBusy)return;cloudPollBusy=true;try{const meta=await readCloudStateMeta();if(meta&&meta.updated_at&&(!cloudLastUpdatedAt||new Date(meta.updated_at).getTime()!==new Date(cloudLastUpdatedAt).getTime())){const row=await readCloudState();if(row&&validCloudState(row.data)){cloudHasState=true;cloudLastUpdatedAt=row.updated_at||meta.updated_at;const remoteJSON=JSON.stringify(row.data),localJSON=JSON.stringify(state);if(remoteJSON!==cloudLastJSON&&(!adminUnlocked||localJSON===cloudLastJSON)){applyCloudState(row.data);cloudStatus('Odebrano aktualizację z innego urządzenia.')}else{cloudLastJSON=localJSON}}}else if(meta&&!meta.updated_at&&cloudLastUpdatedAt){cloudLastUpdatedAt=null}}catch(e){cloudStatus('Chwilowy problem z synchronizacją online.',false);console.error(e)}finally{cloudPollBusy=false}},15000)}
+async function initializeCloud(){
+ let row=null,cacheFresh=false,cachedStateAvailable=false,cachedAt=localStorage.getItem('nexdart_cloud_updated_at');
+ try{const cached=JSON.parse(localStorage.getItem(KEY)||'null');cachedStateAvailable=validCloudState(cached)}catch(e){}
+ const cachedHasPrivateData=()=>JSON.stringify(state).includes('"resultPasswordHash"');
+ const hadAdminToken=!!sessionStorage.getItem('nexdart_admin_token');
+ try{
+  if(cachedStateAvailable&&cachedAt){
+   const meta=await readCloudStateMeta();
+   if(meta&&meta.updated_at&&new Date(meta.updated_at).getTime()===new Date(cachedAt).getTime()&&(hadAdminToken||!cachedHasPrivateData())){
+    cacheFresh=true;cloudHasState=true;cloudLastUpdatedAt=cachedAt;cloudLastJSON=JSON.stringify(state);
+   }else row=await readCloudState();
+  }else row=await readCloudState();
+  if(row&&validCloudState(row.data)){
+   cloudHasState=true;cloudLastUpdatedAt=row.updated_at||null;
+   if(cloudLastUpdatedAt)localStorage.setItem('nexdart_cloud_updated_at',cloudLastUpdatedAt);
+   applyCloudState(row.data);cloudLastJSON=JSON.stringify(state);
+  }else if(cacheFresh){
+   cloudHasState=true;cloudLastJSON=JSON.stringify(state);
+  }else{
+   cloudHasState=false;cloudReady=true;cloudLastJSON=JSON.stringify(state);
+   cloudStatus('Baza online gotowa. Zaloguj się jako administrator, aby zapisać dane.');
+  }
+  cloudReady=true;
+  if(sessionStorage.getItem('nexdart_admin_token')){
+   if(await checkAdminToken()){
+    adminUnlocked=true;
+    if(!cacheFresh||!cachedHasPrivateData()){
+     const adminRow=await readCloudState();
+     if(adminRow&&validCloudState(adminRow.data)){
+      cloudHasState=true;cloudLastUpdatedAt=adminRow.updated_at||cloudLastUpdatedAt;
+      if(cloudLastUpdatedAt)localStorage.setItem('nexdart_cloud_updated_at',cloudLastUpdatedAt);
+      applyCloudState(adminRow.data);cloudLastJSON=JSON.stringify(state);
+     }
+    }
+    renderAdminGate();renderAll();await migrateLocalArticles();await renderNews();
+    cloudStatus('Zalogowano jako administrator. Synchronizacja online aktywna.');
+   }else{
+    sessionStorage.removeItem('nexdart_admin_token');adminUnlocked=false;
+    if(cacheFresh&&cachedHasPrivateData()){
+     const publicRow=await readCloudState();
+     if(publicRow&&validCloudState(publicRow.data)){cloudLastUpdatedAt=publicRow.updated_at||cloudLastUpdatedAt;if(cloudLastUpdatedAt)localStorage.setItem('nexdart_cloud_updated_at',cloudLastUpdatedAt);applyCloudState(publicRow.data);cloudLastJSON=JSON.stringify(state)}
+    }
+    renderAdminGate();
+   }
+  }
+  if(!cloudHasState&&adminUnlocked)await pushCloudState();
+ }catch(e){cloudReady=false;cloudStatus('Nie udało się połączyć z bazą online. Sprawdź wdrożenie i zmienne Netlify.',false);console.error(e)}
+ setInterval(async()=>{
+  if(!cloudReady||cloudPollBusy)return;cloudPollBusy=true;
+  try{
+   const meta=await readCloudStateMeta();
+   const metaAt=meta&&meta.updated_at||null;
+   if(metaAt&&(!cloudLastUpdatedAt||new Date(metaAt).getTime()!==new Date(cloudLastUpdatedAt).getTime())){
+    const updated=await readCloudState();
+    if(updated&&validCloudState(updated.data)){
+     cloudHasState=true;cloudLastUpdatedAt=updated.updated_at||metaAt;
+     localStorage.setItem('nexdart_cloud_updated_at',cloudLastUpdatedAt);
+     const remoteJSON=JSON.stringify(updated.data),localJSON=JSON.stringify(state);
+     if(remoteJSON!==cloudLastJSON&&(!adminUnlocked||localJSON===cloudLastJSON)){
+      applyCloudState(updated.data);cloudStatus('Odebrano aktualizację z innego urządzenia.');
+     }else cloudLastJSON=localJSON;
+    }
+   }else if(!metaAt&&cloudLastUpdatedAt){cloudLastUpdatedAt=null;localStorage.removeItem('nexdart_cloud_updated_at')}
+  }catch(e){cloudStatus('Chwilowy problem z synchronizacją online.',false);console.error(e)}
+  finally{cloudPollBusy=false}
+ },15000)
+}
 function load(){try{const raw=localStorage.getItem(KEY);if(raw){const v=JSON.parse(raw);if(v&&Array.isArray(v.players)&&Array.isArray(v.matches))state={...state,...v,players:v.players.map(p=>({...p,achievements:Array.isArray(p.achievements)?p.achievements:[]})),activePlayerIds:Array.isArray(v.activePlayerIds)?v.activePlayerIds:v.players.map(p=>p.id),archives:Array.isArray(v.archives)?v.archives:[],tournaments:Array.isArray(v.tournaments)?v.tournaments:[],activeTournamentId:v.activeTournamentId||'',gameStart:[301,501].includes(Number(v.gameStart))?Number(v.gameStart):301,outMode:v.outMode==='double'?'double':'single',seasonNumber:Number(v.seasonNumber)||1,seasonName:v.seasonName||('Sezon '+(Number(v.seasonNumber)||1))}}}catch(e){} state.players.forEach(p=>{if(p.resultPasswordHash&&!p.resultPinVersion)p.legacyResultPassword=true}); delete state.adminPasswordHash; const knownIds=new Set(state.players.map(p=>p.id));for(const arc of state.archives||[]){for(const oldPerson of (Array.isArray(arc.allPlayers)?arc.allPlayers:(Array.isArray(arc.players)?arc.players:[]))){if(!oldPerson||!oldPerson.id)continue;const current=state.players.find(p=>p.id===oldPerson.id);if(current){const oldAch=Array.isArray(oldPerson.achievements)?oldPerson.achievements:[];current.achievements=Array.isArray(current.achievements)?current.achievements:[];for(const a of oldAch){if(!current.achievements.some(x=>x.title===a.title&&x.season===a.season&&x.detail===a.detail))current.achievements.push(a)}}else if(!knownIds.has(oldPerson.id)){state.players.push({...oldPerson,achievements:Array.isArray(oldPerson.achievements)?oldPerson.achievements:[]});knownIds.add(oldPerson.id)}}}state.activePlayerIds=state.activePlayerIds.filter(pid=>state.players.some(p=>p.id===pid));if(state.activePlayerIds.length<2)state.activePlayerIds=state.players.slice(0,8).map(p=>p.id);if(!state.matches.length)generateSchedule(false);}
 function id(){return 'm'+Math.random().toString(36).slice(2,10)}
 function getActivePlayers(){return state.activePlayerIds.map(pid=>state.players.find(p=>p.id===pid)).filter(Boolean)}
