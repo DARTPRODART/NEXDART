@@ -211,6 +211,37 @@ button,input,select,textarea{max-width:100%;min-height:42px}
   #view-dashboard .grid2{grid-template-columns:minmax(0,1fr)}
 }
 
+
+/* Mobile: keep schedule and result tables inside their own horizontal scroll area. */
+@media(max-width:700px){
+  .panel,.view,.grid2,.table-wrap,#fixturesTable,.fixture-round{min-width:0;max-width:100%}
+  .table-wrap,#fixturesTable{
+    display:block;
+    width:100%;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  .table-wrap table,#fixturesTable table{
+    width:max-content!important;
+    min-width:100%;
+    max-width:none!important;
+    table-layout:auto!important;
+    white-space:nowrap!important;
+  }
+  .table-wrap th,.table-wrap td,#fixturesTable th,#fixturesTable td{
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    padding:8px 9px;
+  }
+  #fixturesTable .fixture-round{width:100%;margin:0 0 16px}
+  #fixturesTable .section-head{flex-direction:row;align-items:center;gap:8px;flex-wrap:wrap}
+  #fixturesTable .section-head h3{font-size:.95rem}
+  #fixturesTable .schedule-date{min-width:135px}
+  #fixturesTable button{white-space:nowrap}
+}
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
