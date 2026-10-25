@@ -45,13 +45,27 @@ async function ensureMediaBucket() {
     mediaBucketReady = (async () => {
       const base = env("SUPABASE_URL").replace(/\/$/, "");
       const key = env("SUPABASE_SERVICE_ROLE_KEY");
-      const response = await fetch(`${base}/storage/v1/bucket`, {
+      const headers = {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json"
+      };
+      const bucketUrl = `${base}/storage/v1/bucket/${MEDIA_BUCKET}`;
+      const existing = await fetch(bucketUrl, { headers });
+      if (existing.ok) {
+        const bucket = await existing.json();
+        if (bucket.public !== true) {
+          throw new Error(`Magazyn Supabase ${MEDIA_BUCKET} już istnieje, ale nie jest publiczny. Nie zmieniono jego ustawień.`);
+        }
+        return;
+      }
+      if (existing.status !== 404) {
+        const detail = await existing.text();
+        throw new Error(`Nie udało się sprawdzić magazynu grafik Supabase (${existing.status}): ${detail.slice(0, 300)}`);
+      }
+      const created = await fetch(`${base}/storage/v1/bucket`, {
         method: "POST",
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-          "Content-Type": "application/json"
-        },
+        headers,
         body: JSON.stringify({
           id: MEDIA_BUCKET,
           name: MEDIA_BUCKET,
@@ -60,11 +74,20 @@ async function ensureMediaBucket() {
           allowed_mime_types: ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]
         })
       });
-      if (!response.ok && response.status !== 409) {
-        const detail = await response.text();
-        throw new Error(`Nie udało się przygotować magazynu grafik Supabase (${response.status}): ${detail.slice(0, 300)}`);
+      if (!created.ok) {
+        // Another concurrent function invocation may have created it after our GET.
+        const verify = await fetch(bucketUrl, { headers });
+        if (verify.ok) {
+          const bucket = await verify.json();
+          if (bucket.public === true) return;
+        }
+        const detail = await created.text();
+        throw new Error(`Nie udało się przygotować magazynu grafik Supabase (${created.status}): ${detail.slice(0, 300)}`);
       }
-    })();
+    })().catch(error => {
+      mediaBucketReady = undefined;
+      throw error;
+    });
   }
   return mediaBucketReady;
 }
