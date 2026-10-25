@@ -135,7 +135,9 @@ async function storeImageDataUrl(dataUrl) {
 // Converts only embedded image data; existing URLs and all other values remain unchanged.
 export async function externalizeImages(value) {
   if (typeof value === "string") {
-    return value.startsWith("data:image/") ? storeImageDataUrl(value) : value;
+    // Preserve uncommon image data URLs instead of blocking an otherwise valid save.
+    if (!/^data:image\/(?:jpeg|png|webp|gif|avif);base64,/i.test(value)) return value;
+    return storeImageDataUrl(value);
   }
   if (Array.isArray(value)) return Promise.all(value.map(externalizeImages));
   if (value && typeof value === "object") {
