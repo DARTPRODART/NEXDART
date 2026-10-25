@@ -76,7 +76,7 @@ export default async (request) => {
 
     if (request.method === "POST") {
       const body = await request.json();
-      const playerName = String(body?.playerName || "").trim().replace(/\\s+/g, " ");
+      const playerName = String(body?.playerName || "").trim().replace(/\s+/g, " ");
       const email = String(body?.email || "").trim();
       const emailKey = normalizedEmail(email);
       if (playerName.length < 2 || playerName.length > 120) {
