@@ -131,6 +131,7 @@ th,td{border-bottom-color:#30231b}
   <div class="registration-dialog">
     <div class="section-head"><div><div class="eyebrow">NEXDART · KONTO ZAWODNIKA</div><h2 id="registrationTitle">Zapisz się</h2></div><button type="button" class="ghost" id="registrationCloseBtn" aria-label="Zamknij">✕</button></div>
     <p class="registration-intro">Podaj nazwę zawodnika i adres e-mail. Najpierw potwierdzisz skrzynkę, a administrator sprawdzi zgłoszenie i przypisze właściwy profil.</p>
+    <div id="registrationPreviewNotice" class="notice hidden">To jest podgląd wyglądu formularza na Cloudflare Pages. Wysyłanie zgłoszeń jest wyłączone, aby nie zapisywać testowych danych w produkcyjnej bazie.</div>
     <form id="registrationForm">
       <div style="margin-bottom:12px"><label for="registrationPlayerName">Nazwa zawodnika</label><input id="registrationPlayerName" name="playerName" maxlength="120" required autocomplete="name" placeholder="Imię i nazwisko"></div>
       <div><label for="registrationEmail">Adres e-mail</label><input id="registrationEmail" name="email" type="email" maxlength="254" required autocomplete="email" placeholder="np. zawodnik@example.com"></div>
@@ -476,6 +477,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-player-car
 
 function registrationMessage(message,ok=false){const el=$('registrationMessage');el.textContent=message;el.style.display='block';el.style.borderColor=ok?'#35665d':'#8a6a32';el.style.background=ok?'#18332c':'#2b281d';el.style.color=ok?'#c9f3dc':'#ead7aa'}
 function closeRegistrationModal(){$('registrationModal').classList.add('hidden')}
+if(location.hostname.endsWith('.pages.dev')){$('registrationPreviewNotice').classList.remove('hidden');$('registrationSubmitBtn').disabled=true;$('registrationSubmitBtn').textContent='Podgląd — wysyłanie wyłączone'}
 $('registrationOpenBtn').addEventListener('click',()=>{$('registrationModal').classList.remove('hidden');$('registrationMessage').style.display='none';$('registrationPlayerName').focus()});
 $('registrationCloseBtn').addEventListener('click',closeRegistrationModal);
 $('registrationCancelBtn').addEventListener('click',closeRegistrationModal);
