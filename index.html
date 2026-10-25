@@ -166,6 +166,20 @@ button,input,select,textarea{max-width:100%;min-height:42px}
  .mini-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
+
+/* Keep all navigation tabs and table columns visible without horizontal sliders. */
+.nav{display:flex;flex-wrap:wrap;overflow:visible;max-width:100%;white-space:normal}
+.nav button{flex:0 1 auto;white-space:normal;overflow-wrap:anywhere}
+.table-wrap{width:100%;max-width:100%;overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important}
+.table-wrap table{width:100%;max-width:100%;table-layout:auto;white-space:normal}
+.table-wrap th,.table-wrap td{white-space:normal;overflow-wrap:anywhere;word-break:normal}
+.news-content table{display:table;overflow:visible;table-layout:fixed}
+@media(max-width:700px){
+ .table-wrap th,.table-wrap td{padding:6px 4px;font-size:.72rem}
+ .table-wrap table{font-size:.72rem}
+ .nav button{max-width:100%}
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
