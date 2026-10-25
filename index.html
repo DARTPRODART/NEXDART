@@ -70,6 +70,102 @@ th,td{border-bottom-color:#30231b}
 .rating-chip{display:inline-block;margin:0 0 8px 6px;padding:5px 9px;border:1px solid #a24c19;border-radius:999px;background:rgba(255,116,23,.13);color:#ff9b50;font-size:.78rem;font-weight:850}.rating-panel{border:1px solid #7c3f1b;background:linear-gradient(135deg,#21160f,#151311);border-radius:14px;padding:15px;margin:14px 0 18px}.rating-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.rating-value{font-size:1.8rem;font-weight:900;color:#ff9b50}.rating-track{height:8px;background:#38302a;border-radius:999px;overflow:hidden;margin-top:10px}.rating-track span{display:block;height:100%;background:linear-gradient(90deg,#e65c10,#ff9c43);border-radius:999px}.rating-history{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}.rating-history .upcoming{padding:8px 0;font-size:.82rem}.rating-positive{color:#8fe0a1;font-weight:800}.rating-negative{color:#ff9386;font-weight:800}@media(max-width:600px){.rating-history{grid-template-columns:1fr}}
 .xp-chip{display:inline-block;margin:2px 0 10px;padding:5px 9px;border:1px solid #8d5728;border-radius:999px;background:rgba(255,130,35,.10);color:#ffad62;font-size:.78rem;font-weight:750}.xp-panel{border:1px solid #674323;background:linear-gradient(135deg,#211b17,#151a19);border-radius:14px;padding:15px;margin:14px 0 18px}.xp-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.xp-heading h3{margin:3px 0 10px}.xp-heading strong{color:#ffad62;font-size:1.15rem}.xp-track{height:9px;background:#34302b;border-radius:999px;overflow:hidden}.xp-track span{display:block;height:100%;background:linear-gradient(90deg,#e66a19,#ffb347);border-radius:999px}.xp-caption{font-size:.78rem;color:#c1c7c4;margin-top:7px}.xp-breakdown{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:13px;font-size:.8rem;color:#c1c7c4}.xp-breakdown b{color:#f5a65b;margin-left:4px}
 
+
+/* Mobile layout pass — compact navigation, readable panels, and touch-friendly controls. */
+html{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body,.app{width:100%;min-width:0;overflow-x:hidden}
+img,svg,canvas,video{max-width:100%}
+button,input,select,textarea{max-width:100%;min-height:42px}
+.wrap{width:100%;min-width:0}
+.panel,.stat,.player-card,.news-card,.leaderboard-card,.report-item,.rating-panel,.home-news,.dartboard-panel,.dart-tools>.panel{min-width:0}
+.grid2>*,.form-grid>*,.stats>*,.player-grid>*,.news-grid>*,.home-news-layout>*,.home-news-feature>*{min-width:0}
+.nav{max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:0 0 5px;scrollbar-width:thin}
+.nav button{flex:0 0 auto;white-space:nowrap}
+.table-wrap{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:850px){
+ .wrap{padding:12px}
+ .top{padding:16px;border-radius:14px}
+ .top-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+ .top-actions button{min-width:0;white-space:normal}
+ .stats{gap:9px}
+ .stat,.panel{padding:13px}
+ .grid2{gap:10px}
+ .section-head{gap:8px}
+ .home-news{padding:12px}
+ .home-news-feature{min-width:0}
+ .report-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .wrap{padding:9px}
+ .top{gap:12px;margin-bottom:14px;padding:14px 12px}
+ .brand{gap:10px;min-width:0}
+ .logo{width:40px;height:40px;flex:0 0 40px;font-size:22px}
+ .top h1{font-size:1.35rem;overflow-wrap:anywhere}
+ .top p{font-size:.82rem}
+ .eyebrow{font-size:.62rem;letter-spacing:.12em}
+ .top-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .top-actions button{padding:10px 8px;font-size:.84rem}
+ .nav{gap:6px;margin-bottom:13px}
+ .nav button{padding:9px 11px;font-size:.82rem}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .stat,.panel{padding:11px;border-radius:12px}
+ .stat .value{font-size:1.35rem;overflow-wrap:anywhere}
+ .stat .label,.stat .note{overflow-wrap:anywhere}
+ .section-head{flex-direction:column;align-items:stretch}
+ .section-head>button,.section-head .top-actions{width:100%}
+ .form-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+ .form-grid .full{grid-column:auto}
+ .form-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .form-actions button{min-width:0;padding:10px 8px;white-space:normal}
+ .player-grid{grid-template-columns:minmax(0,1fr)}
+ .player-card{padding:12px}
+ .profile-head{align-items:flex-start;gap:10px}
+ .profile-head h2{overflow-wrap:anywhere}
+ .mini-stats{gap:5px}
+ .mini-stats div{padding:7px 5px;min-width:0}
+ .mini-stats b{font-size:.9rem;overflow-wrap:anywhere}
+ .mini-stats span{font-size:.64rem;overflow-wrap:anywhere}
+ .upcoming{align-items:flex-start;gap:8px}
+ .fixture{flex:1;min-width:0}
+ .fixture .home,.fixture .away{overflow-wrap:anywhere}
+ .score{padding:5px 7px}
+ .live-score,.report-grid,.checkout-metrics,.rating-history{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .throw-row{flex-wrap:wrap}
+ .throw-row input{max-width:none;flex:1 1 110px}
+ .achievement-list{grid-template-columns:minmax(0,1fr)}
+ .news-body{padding:12px}
+ .news-body h3{font-size:1.05rem}
+ .news-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .news-actions button{min-width:0;padding:9px 7px;white-space:normal}
+ .home-news-list{grid-template-columns:minmax(0,1fr)}
+ .home-news-feature{grid-template-columns:minmax(0,1fr)}
+ .home-news-feature img{width:100%;height:auto;max-height:230px}
+ .news-detail-overlay{padding:6px}
+ .news-detail-head{padding:11px 12px}
+ .news-detail-body{padding:14px;font-size:1rem;line-height:1.7}
+ .news-detail-body h1{font-size:1.5rem;overflow-wrap:anywhere}
+ .news-editor-toolbar{gap:5px}
+ .news-editor-toolbar button{padding:7px;min-width:34px}
+ .news-editor-toolbar select{max-width:100px}
+ .news-rich-editor{min-height:180px}
+ .site-banner-wrap{border-radius:10px}
+ .site-banner-wrap img{max-height:190px;object-fit:contain}
+ .rating-head{align-items:flex-start}
+ .rating-value{font-size:1.5rem}
+ .schedule-date{min-width:0;max-width:100%;width:100%}
+ .tournament-round{min-width:0;flex-basis:100%}
+ .toast{width:calc(100% - 24px);text-align:center;bottom:10px}
+}
+@media(max-width:380px){
+ .wrap{padding:7px}
+ .top-actions{grid-template-columns:minmax(0,1fr)}
+ .stats{gap:6px}
+ .stat .value{font-size:1.2rem}
+ .form-actions,.news-actions{grid-template-columns:minmax(0,1fr)}
+ .live-score,.report-grid,.checkout-metrics,.rating-history{grid-template-columns:minmax(0,1fr)}
+ .mini-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
