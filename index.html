@@ -419,10 +419,10 @@ async function downloadNexdartPlayerCard(pid){
  line(nameX+12,nameY+nameH,nameX+nameW-12,nameY+nameH,'rgba(255,120,31,.68)',2);
  txt('PLAYER RATING',infoX,480,13,'#a99c92','700');
  txt(rating.toFixed(2),infoX,548,52,tierColor,'900');txt('/ 7.00',infoX+158,548,17,'#92857b','700');
- // Compact tier medallion placed below the rating, with its own breathing room.
- c.save();c.shadowColor=tierColor;c.shadowBlur=22;hex(812,715,65,'rgba(28,17,10,.97)',tierColor);hex(812,715,54,'rgba(10,10,10,.98)','rgba(255,255,255,.16)');c.restore();
- for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,715);c.rotate(an);path([[-2,-52],[2,-52],[6,-41],[-6,-41]],tierColor);c.restore()}
- txt('✦',812,696,24,tierColor,'900','center');txt(tier,812,723,17,tierColor,'900','center');txt('TIER',812,741,10,'#a99c92','700','center');
+ // Compact tier medallion moved up to keep clear space above the player-name panel.
+ c.save();c.shadowColor=tierColor;c.shadowBlur=22;hex(812,660,65,'rgba(28,17,10,.97)',tierColor);hex(812,660,54,'rgba(10,10,10,.98)','rgba(255,255,255,.16)');c.restore();
+ for(let i=0;i<8;i++){const an=i*Math.PI/4;c.save();c.translate(812,660);c.rotate(an);path([[-2,-52],[2,-52],[6,-41],[-6,-41]],tierColor);c.restore()}
+ txt('✦',812,641,24,tierColor,'900','center');txt(tier,812,668,17,tierColor,'900','center');txt('TIER',812,686,10,'#a99c92','700','center');
  // Poziom karty — ustawiony wyżej i wyśrodkowany w swojej strefie.
  const rawLevel=String(xp.level||'Rookie').trim().toLocaleLowerCase('pl-PL');
  const levelName=rawLevel?rawLevel.charAt(0).toLocaleUpperCase('pl-PL')+rawLevel.slice(1):'Rookie';
