@@ -180,6 +180,18 @@ button,input,select,textarea{max-width:100%;min-height:42px}
  .nav button{max-width:100%}
 }
 
+
+/* Ranking table: keep the Rating heading and its value on one line. */
+#miniRanking th:nth-child(3),
+#miniRanking td:nth-child(3),
+#fullRanking th:nth-child(3),
+#fullRanking td:nth-child(3){
+  white-space:nowrap!important;
+  min-width:68px;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
