@@ -1,0 +1,41 @@
+name: Netlify test deploy (NEXDART image optimization)
+
+on:
+  push:
+    branches:
+      - optimize/image-storage-transfer
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexdart-image-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    name: Publish non-production Netlify preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Netlify CLI
+        run: npm install --global netlify-cli
+
+      - name: Deploy preview (not production)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "::error::Add NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID in GitHub repository Actions secrets."
+            exit 1
+          fi
+          netlify deploy --dir . --functions netlify/functions --alias nexdart-image-test --site-id "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --json
