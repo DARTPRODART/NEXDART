@@ -181,15 +181,34 @@ button,input,select,textarea{max-width:100%;min-height:42px}
 }
 
 
-/* Ranking table: keep the Rating heading and its value on one line. */
-#miniRanking th:nth-child(3),
-#miniRanking td:nth-child(3),
-#fullRanking th:nth-child(3),
-#fullRanking td:nth-child(3){
+/* Give the ranking more room than the upcoming matches on the dashboard. */
+#view-dashboard .grid2{
+  grid-template-columns:minmax(0,1.8fr) minmax(220px,.7fr);
+  align-items:start;
+}
+#view-dashboard #miniRanking,
+#view-ranking #fullRanking{
+  min-width:0;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+}
+#miniRanking table,
+#fullRanking table{
+  width:max-content!important;
+  min-width:100%;
+  max-width:none!important;
+  table-layout:auto!important;
+}
+#miniRanking th,
+#miniRanking td,
+#fullRanking th,
+#fullRanking td{
   white-space:nowrap!important;
-  min-width:68px;
   overflow-wrap:normal!important;
   word-break:keep-all!important;
+}
+@media(max-width:760px){
+  #view-dashboard .grid2{grid-template-columns:minmax(0,1fr)}
 }
 
 </style></head>
