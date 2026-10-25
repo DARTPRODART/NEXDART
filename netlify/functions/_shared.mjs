@@ -69,35 +69,44 @@ async function ensureMediaBucket() {
   return mediaBucketReady;
 }
 
+const mediaUploads = new Map();
+
 async function storeImageDataUrl(dataUrl) {
   const match = /^data:(image\/(?:jpeg|png|webp|gif|avif));base64,([a-z0-9+/=\s]+)$/i.exec(dataUrl);
   if (!match) throw new Error("Grafika ma nieobsługiwany format. Użyj JPG, PNG, WebP, GIF lub AVIF.");
   const mime = match[1].toLowerCase();
   const bytes = Buffer.from(match[2].replace(/\s/g, ""), "base64");
   if (!bytes.length || bytes.length > 12 * 1024 * 1024) throw new Error("Grafika przekracza limit 12 MB.");
-  await ensureMediaBucket();
   const { createHash } = await import("node:crypto");
   const hash = createHash("sha256").update(bytes).digest("hex");
-  const extension = ({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif" })[mime];
-  const path = `images/${hash}.${extension}`;
-  const base = env("SUPABASE_URL").replace(/\/$/, "");
-  const key = env("SUPABASE_SERVICE_ROLE_KEY");
-  const response = await fetch(`${base}/storage/v1/object/${MEDIA_BUCKET}/${path}`, {
-    method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": mime,
-      "Cache-Control": "public, max-age=31536000, immutable",
-      "x-upsert": "true"
-    },
-    body: bytes
-  });
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Nie udało się zapisać grafiki w Supabase Storage (${response.status}): ${detail.slice(0, 300)}`);
-  }
-  return `${base}/storage/v1/object/public/${MEDIA_BUCKET}/${path}`;
+  if (mediaUploads.has(hash)) return mediaUploads.get(hash);
+
+  const uploadPromise = (async () => {
+    await ensureMediaBucket();
+    const extension = ({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif" })[mime];
+    const path = `images/${hash}.${extension}`;
+    const base = env("SUPABASE_URL").replace(/\/$/, "");
+    const key = env("SUPABASE_SERVICE_ROLE_KEY");
+    const response = await fetch(`${base}/storage/v1/object/${MEDIA_BUCKET}/${path}`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": mime,
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "x-upsert": "true"
+      },
+      body: bytes
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Nie udało się zapisać grafiki w Supabase Storage (${response.status}): ${detail.slice(0, 300)}`);
+    }
+    return `${base}/storage/v1/object/public/${MEDIA_BUCKET}/${path}`;
+  })();
+  mediaUploads.set(hash, uploadPromise);
+  try { return await uploadPromise; }
+  catch (error) { mediaUploads.delete(hash); throw error; }
 }
 
 // Converts only embedded image data; existing URLs and all other values remain unchanged.
