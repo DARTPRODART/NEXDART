@@ -60,7 +60,7 @@ export default async (request) => {
       if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])]));
       return value;
     };
-    if (!saved || saved.updated_at !== updatedAt || JSON.stringify(stable(saved.data)) !== JSON.stringify(stable(data))) {
+    if (!saved || !Number.isFinite(new Date(saved.updated_at).getTime()) || new Date(saved.updated_at).getTime() !== new Date(updatedAt).getTime() || JSON.stringify(stable(saved.data)) !== JSON.stringify(stable(data))) {
       console.error("Supabase state write verification failed", {
         rowReturned: !!saved,
         expectedUpdatedAt: updatedAt,
