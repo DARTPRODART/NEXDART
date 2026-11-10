@@ -477,10 +477,10 @@ function createCup(){
   state.tournaments=state.tournaments||[];state.tournaments.push(cup);state.activeTournamentId=cup.id;save();renderCup();toast('Wylosowano dwie grupy. Po fazie grupowej powstaną półfinały.');return;
  }
  let size=1;while(size<n)size*=2;
- const slots=ids.concat(Array(size-n).fill(''));
- for(let i=slots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slots[i],slots[j]]=[slots[j],slots[i]]}
- let current=[];
- for(let i=0;i<size;i+=2){const a=slots[i]||'',b=slots[i+1]||'',bye=!!(a||b)&&!(a&&b);current.push({id:id(),a,b,winner:bye?(a||b):''})}
+ const byeCount=size-n,byePlayers=ids.slice(0,byeCount),remaining=ids.slice(byeCount);
+ let current=byePlayers.map(pid=>({id:id(),a:pid,b:'',winner:pid}));
+ for(let i=0;i<remaining.length;i+=2)current.push({id:id(),a:remaining[i],b:remaining[i+1],winner:''});
+ for(let i=current.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[current[i],current[j]]=[current[j],current[i]]}
  const rounds=[current];
  while(current.length>1){const next=[];for(let i=0;i<current.length;i+=2){const prevA=current[i],prevB=current[i+1];next.push({id:id(),a:prevA?.winner||'',b:prevB?.winner||'',winner:''})}rounds.push(next);current=next}
  const cup={id:'cup'+Math.random().toString(36).slice(2,9),name:$('cupName').value.trim()||'Turniej pucharowy',players:ids,rounds,createdAt:new Date().toISOString().slice(0,10)};
