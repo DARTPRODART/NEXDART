@@ -372,6 +372,206 @@ tbody tr:hover{background:rgba(255,116,23,.055)}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 
+
+
+/* NEXDART player profile — premium player-card presentation */
+#profilePanel{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(14px,2.4vw,26px);
+  border:1px solid #60371f;
+  border-radius:20px;
+  background:
+    radial-gradient(ellipse at 4% 0%,rgba(255,116,23,.14),transparent 36%),
+    radial-gradient(ellipse at 100% 16%,rgba(255,154,77,.07),transparent 30%),
+    linear-gradient(145deg,#171310 0%,#100e0d 58%,#0c0b0a 100%);
+  box-shadow:0 18px 48px #0008,inset 0 1px 0 #ffffff08;
+}
+#profilePanel:before{
+  content:"NEXDART";
+  position:absolute;
+  top:10px;
+  right:18px;
+  color:rgba(255,145,75,.055);
+  font-size:clamp(2.4rem,8vw,6rem);
+  font-weight:950;
+  letter-spacing:.12em;
+  line-height:1;
+  pointer-events:none;
+}
+#profilePanel .profile-head{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:16px;
+  padding:18px;
+  margin:0 0 18px;
+  border:1px solid #71401f;
+  border-radius:16px;
+  background:linear-gradient(105deg,#28190f 0%,#1a1410 52%,#12100e 100%);
+  box-shadow:0 10px 28px #0005,inset 0 1px 0 #ffffff0a;
+}
+#profilePanel .profile-head:after{
+  content:"";
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:0;
+  height:2px;
+  border-radius:2px;
+  background:linear-gradient(90deg,transparent,#ff7417 18%,#ffb16d 50%,#ff7417 82%,transparent);
+  opacity:.8;
+}
+#profilePanel .profile-head .avatar{
+  width:92px!important;
+  height:92px!important;
+  min-width:92px;
+  min-height:92px;
+  margin:0;
+  border:2px solid #ff8a38;
+  background:radial-gradient(circle at 35% 25%,#71401f,#1b100a 72%);
+  box-shadow:0 0 0 5px #ff74171a,0 0 26px #ff741744;
+  font-size:1.65rem;
+  overflow:hidden;
+}
+#profilePanel .profile-head .avatar-img{width:100%;height:100%;object-fit:cover}
+#profilePanel .profile-head h2{
+  margin:0 0 5px;
+  color:#fff7f0;
+  font-size:clamp(1.35rem,3vw,2rem);
+  font-weight:950;
+  letter-spacing:-.035em;
+  line-height:1.12;
+  text-shadow:0 2px 16px #0008;
+}
+#profilePanel .profile-head p{margin:0;color:#d0b9a7;font-size:.9rem;line-height:1.5}
+#profilePanel .profile-head button{position:relative;z-index:1;white-space:nowrap}
+#profilePanel>.rating-panel,#profilePanel>.xp-panel{
+  position:relative;
+  overflow:hidden;
+  border-radius:15px;
+  box-shadow:0 9px 25px #0004,inset 0 1px 0 #ffffff08;
+}
+#profilePanel .rating-panel{
+  border-color:#78421f;
+  background:radial-gradient(ellipse at 100% 0%,#49230f66,transparent 48%),linear-gradient(135deg,#21160f,#14110f);
+}
+#profilePanel .rating-value{font-size:clamp(1.8rem,4vw,2.35rem);letter-spacing:-.045em;text-shadow:0 0 18px #ff741733}
+#profilePanel .rating-track,#profilePanel .xp-track{height:10px;background:#30251e;border:1px solid #49301f}
+#profilePanel .rating-track span,#profilePanel .xp-track span{box-shadow:0 0 12px #ff741766}
+#profilePanel .xp-panel{
+  border-color:#644323;
+  background:radial-gradient(ellipse at 100% 0%,#ff9b5410,transparent 45%),linear-gradient(135deg,#201a15,#121211);
+}
+#profilePanel .xp-heading h3{font-size:1.25rem;color:#fff2e7}
+#profilePanel .xp-heading strong{font-size:1.35rem;text-shadow:0 0 14px #ff9b5433}
+#profilePanel>.stats{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:16px 0 22px;
+}
+#profilePanel>.stats .stat{
+  min-width:0;
+  min-height:96px;
+  padding:14px;
+  border-radius:13px;
+  background:linear-gradient(145deg,#1d1915,#12100e);
+}
+#profilePanel>.stats .stat .label{font-size:.72rem;letter-spacing:.045em;text-transform:uppercase;color:#bba18e}
+#profilePanel>.stats .stat .value{font-size:clamp(1.25rem,2.2vw,1.8rem);overflow-wrap:anywhere}
+#profilePanel>h3{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:24px 0 12px;
+  padding-bottom:9px;
+  border-bottom:1px solid #49301f;
+  color:#fff1e6;
+  font-size:1.08rem;
+  letter-spacing:-.015em;
+}
+#profilePanel>h3:after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg,#a65325,transparent);
+  opacity:.65;
+}
+#profilePanel .achievement-list{gap:10px}
+#profilePanel .achievement-list .upcoming{
+  border-color:#4b3322;
+  border-radius:12px;
+  background:linear-gradient(120deg,#1c1712,#12110f);
+  transition:transform var(--nd-motion) ease,border-color var(--nd-motion) ease,box-shadow var(--nd-motion) ease;
+}
+#profilePanel .achievement-list .upcoming:hover{
+  transform:translateY(-2px);
+  border-color:#a65325;
+  box-shadow:0 8px 20px #0005;
+}
+#profilePanel .report-item{
+  border-color:#49301f;
+  border-radius:12px;
+  background:linear-gradient(145deg,#1c1712,#12110f);
+}
+#profilePanel .avatar-upload{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(180px,.7fr);
+  align-items:end;
+  gap:10px 14px;
+  padding:16px;
+  margin:16px 0 20px;
+  border:1px solid #50351f;
+  border-radius:14px;
+  background:linear-gradient(135deg,#1d1712,#12100e);
+}
+#profilePanel .avatar-upload>label:first-child{grid-column:1/-1;color:#ffb17a;font-weight:800;font-size:.9rem}
+#profilePanel .avatar-upload>div{grid-column:1/-1}
+#profilePanel .avatar-upload>span{grid-column:1/-1;line-height:1.55}
+#profilePanel .table-wrap{
+  border:1px solid #443020;
+  border-radius:12px;
+  background:#100e0c;
+}
+#profilePanel .table-wrap table{font-size:.82rem}
+#profilePanel .table-wrap th{background:#1c1510;color:#d7b79d}
+#profilePanel .table-wrap tr:hover{background:#ff74170d}
+@media(max-width:850px){
+  #profilePanel>.stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #profilePanel .profile-head{grid-template-columns:78px minmax(0,1fr) auto;gap:12px}
+  #profilePanel .profile-head .avatar{width:78px!important;height:78px!important;min-width:78px;min-height:78px}
+  #profilePanel .profile-head #closeProfile{grid-column:3;grid-row:1}
+  #profilePanel .profile-head [data-player-card]{grid-column:2;grid-row:2;justify-self:start}
+}
+@media(max-width:700px){
+  #profilePanel{padding:11px;border-radius:15px}
+  #profilePanel .profile-head{
+    display:grid;
+    grid-template-columns:68px minmax(0,1fr);
+    gap:10px;
+    padding:13px;
+  }
+  #profilePanel .profile-head .avatar{
+    width:68px!important;height:68px!important;min-width:68px;min-height:68px;
+    grid-column:1;grid-row:1;
+  }
+  #profilePanel .profile-head>div:nth-child(2){grid-column:2;grid-row:1;min-width:0}
+  #profilePanel .profile-head h2{font-size:1.25rem}
+  #profilePanel .profile-head p{font-size:.78rem}
+  #profilePanel .profile-head [data-player-card],
+  #profilePanel .profile-head #closeProfile{grid-column:1/-1;grid-row:auto;width:100%;justify-self:stretch}
+  #profilePanel>.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  #profilePanel>.stats .stat{min-height:82px;padding:10px}
+  #profilePanel .avatar-upload{grid-template-columns:minmax(0,1fr);padding:12px}
+  #profilePanel .avatar-upload>*{grid-column:1!important}
+}
+@media(max-width:380px){
+  #profilePanel>.stats .stat .label{font-size:.65rem}
+  #profilePanel .profile-head{padding:10px}
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
