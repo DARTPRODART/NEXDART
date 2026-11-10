@@ -707,6 +707,126 @@ tbody tr:hover{background:rgba(255,116,23,.055)}
   #view-entry .live-player.is-throwing{transform:none}
 }
 
+
+/* NEXDART — turnieje i terminarz: warstwa wizualna bez zmian logiki */
+#view-cup>.panel,#view-fixtures>.panel{
+  background:radial-gradient(ellipse at 100% 0,rgba(255,116,23,.075),transparent 42%),linear-gradient(145deg,#171310,#0e0c0b);
+  border-color:#57321e;
+}
+#view-cup .section-head,#view-fixtures .section-head{align-items:center}
+#cupContent>h3,#cupContent h3{
+  display:flex;align-items:center;gap:9px;margin:22px 0 12px;
+  color:#fff2e8;letter-spacing:.015em;
+}
+#cupContent>h3:first-child{font-size:1.35rem;margin-top:0}
+#cupContent>h3:before{
+  content:"";display:block;width:4px;height:1.15em;border-radius:5px;
+  background:linear-gradient(#ffb16d,#ff7417);box-shadow:0 0 12px #ff741766;
+}
+#cupContent>.muted.small{
+  display:block;padding:10px 12px;margin:0 0 16px;border:1px solid #39271c;
+  border-radius:10px;background:#100d0b;line-height:1.7;
+}
+#cupContent>div[style*="display:flex"],#cupContent>div[style*="display: flex"]{
+  padding:10px 2px 14px!important;scrollbar-width:thin;scrollbar-color:#75401f #17110d;
+}
+#cupContent .tournament-round{
+  position:relative;overflow:hidden;min-width:245px;max-width:340px;
+  padding:15px;border-radius:15px;border-color:#57331f;
+  background:linear-gradient(155deg,#201710 0%,#12100e 72%);
+  box-shadow:0 8px 22px #0005,inset 0 1px #ffffff08;
+  animation:ndTournamentEnter .38s ease both;
+}
+#cupContent .tournament-round:before{
+  content:"";position:absolute;left:16px;right:16px;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,#ff7417,transparent);opacity:.8;
+}
+#cupContent .tournament-round h4{
+  margin:2px 0 12px;color:#ffad70;font-size:.9rem;
+  text-transform:uppercase;letter-spacing:.09em;
+}
+#cupContent .tournament-round table{margin-top:10px;font-size:.82rem}
+#cupContent .tournament-round th{color:#d4a27e}
+#cupContent .tournament-round td,#cupContent .tournament-round th{padding:8px 7px}
+#cupContent .tournament-match{
+  position:relative;margin:8px 0 0;padding:12px 11px;
+  border:1px solid #3c2a1e;border-radius:11px;
+  background:linear-gradient(120deg,#1b1511,#12100e);
+  transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease;
+}
+#cupContent .tournament-match:hover{
+  border-color:#96501f;transform:translateY(-1px);box-shadow:0 5px 16px #0005;
+}
+#cupContent .tournament-match .small{line-height:1.65}
+#cupContent .tournament-match .form-actions{gap:6px;margin-top:9px}
+#cupContent .tournament-match .form-actions button{flex:1;min-width:0;padding:8px 9px;font-size:.78rem}
+#cupContent .tournament-match .pill{white-space:normal;line-height:1.5}
+#cupContent .notice{
+  border-color:#99501e;background:linear-gradient(110deg,#2b190d,#1b120d);
+  box-shadow:inset 3px 0 #ff7417,0 5px 18px #0003;
+}
+#cupContent .tournament-round .pill.done{display:inline-flex;margin-top:8px}
+#cupContent .tournament-round .upcoming{padding:9px 4px;border-bottom-color:#3b291d}
+#cupContent .tournament-round .upcoming:last-child{border-bottom:0}
+#view-fixtures #fixtureSummary{
+  display:inline-flex;align-items:center;margin-top:7px;padding:6px 10px;
+  border:1px solid #4c301e;border-radius:999px;background:#17110d;color:#e7b18b;
+}
+#view-fixtures #fixturesTable{display:grid;gap:15px;margin-top:14px}
+#view-fixtures #fixturesTable .fixture-round{
+  position:relative;overflow:hidden;padding:14px;border:1px solid #49301f;
+  border-radius:15px;background:linear-gradient(145deg,#191410,#100e0c);
+  box-shadow:0 7px 20px #0004;animation:ndFixtureEnter .35s ease both;
+}
+#view-fixtures #fixturesTable .fixture-round:before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(#ffb16d,#ff7417 65%,transparent);
+}
+#view-fixtures #fixturesTable .fixture-round .section-head{
+  padding:2px 2px 11px 9px;margin:0 0 7px!important;
+  border-bottom:1px solid #50311f;
+}
+#view-fixtures #fixturesTable .fixture-round .section-head h3{
+  display:flex;align-items:center;gap:9px;color:#ffad70;font-size:1rem;
+  text-transform:uppercase;letter-spacing:.07em;
+}
+#view-fixtures #fixturesTable .fixture-round .section-head h3:before{
+  content:"";width:8px;height:8px;border-radius:50%;background:#ff7417;
+  box-shadow:0 0 10px #ff7417;
+}
+#view-fixtures #fixturesTable table{border-collapse:separate;border-spacing:0 5px;white-space:normal}
+#view-fixtures #fixturesTable thead th{padding:8px 10px;color:#c7a58e}
+#view-fixtures #fixturesTable tbody tr{background:#17120f;transition:background .18s ease}
+#view-fixtures #fixturesTable tbody tr:hover{background:#24170f}
+#view-fixtures #fixturesTable tbody td{
+  padding:11px 10px;border-top:1px solid #38271d;border-bottom:1px solid #38271d;
+}
+#view-fixtures #fixturesTable tbody td:first-child{border-left:1px solid #38271d;border-radius:9px 0 0 9px}
+#view-fixtures #fixturesTable tbody td:last-child{border-right:1px solid #38271d;border-radius:0 9px 9px 0}
+#view-fixtures #fixturesTable .score{
+  display:inline-block;min-width:52px;text-align:center;padding:7px 11px;
+  border-color:#75401f;background:linear-gradient(135deg,#382012,#21140e);
+  color:#ffbd8a;box-shadow:inset 0 0 12px #ff741711;
+}
+#view-fixtures #fixturesTable .pill{white-space:nowrap}
+@keyframes ndTournamentEnter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ndFixtureEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){
+  #cupContent .tournament-round{min-width:min(82vw,290px);max-width:88vw}
+  #cupContent>div[style*="display:flex"]{overflow-x:auto!important;scroll-snap-type:x proximity}
+  #cupContent .tournament-round{scroll-snap-align:start}
+  #view-fixtures #fixturesTable .fixture-round{padding:10px 8px}
+  #view-fixtures #fixturesTable table{font-size:.77rem}
+  #view-fixtures #fixturesTable thead th{font-size:.63rem;padding:7px 5px}
+  #view-fixtures #fixturesTable tbody td{padding:8px 5px}
+  #view-fixtures #fixturesTable .schedule-date{min-width:112px;max-width:125px}
+  #view-fixtures #fixturesTable button{padding:7px 8px;font-size:.75rem}
+}
+@media(prefers-reduced-motion:reduce){
+  #cupContent .tournament-round,#view-fixtures #fixturesTable .fixture-round{animation:none}
+  #cupContent .tournament-match,#view-fixtures #fixturesTable tbody tr{transition:none}
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
