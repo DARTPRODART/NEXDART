@@ -45,13 +45,30 @@ export default async (request) => {
     const data = JSON.parse(JSON.stringify(body.data));
     delete data.adminPasswordHash;
     const updatedAt = new Date().toISOString();
-    const response = await dbRequest("league_state?on_conflict=id", {
+    const response = await dbRequest("league_state?on_conflict=id&select=id,data,updated_at", {
       method: "POST",
-      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      headers: { Prefer: "resolution=merge-duplicates,return=representation" },
       body: JSON.stringify({ id: 1, data, updated_at: updatedAt })
     });
     if (!response.ok) { console.error("Supabase state upsert failed", response.status, await response.text()); return json({ error: "Nie udało się zapisać danych ligi." }, 502); }
-    return json({ ok: true, updated_at: updatedAt });
+
+    // A successful HTTP status alone is not enough: verify the row returned by Supabase.
+    const rows = await response.json();
+    const saved = Array.isArray(rows) ? rows.find(row => Number(row.id) === 1) : null;
+    const stable = value => {
+      if (Array.isArray(value)) return value.map(stable);
+      if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])]));
+      return value;
+    };
+    if (!saved || saved.updated_at !== updatedAt || JSON.stringify(stable(saved.data)) !== JSON.stringify(stable(data))) {
+      console.error("Supabase state write verification failed", {
+        rowReturned: !!saved,
+        expectedUpdatedAt: updatedAt,
+        actualUpdatedAt: saved?.updated_at || null
+      });
+      return json({ error: "Baza nie potwierdziła zgodności zapisanego stanu ligi." }, 502);
+    }
+    return json({ ok: true, updated_at: saved.updated_at });
   } catch (error) {
     console.error("state function error", error);
     return json({ error: "Błąd serwera przy obsłudze danych ligi." }, 500);
