@@ -572,6 +572,141 @@ tbody tr:hover{background:rgba(255,116,23,.055)}
   #profilePanel .profile-head{padding:10px}
 }
 
+
+/* NEXDART — Match Center visual treatment (presentation only) */
+#view-entry > .panel{
+  position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#17120f 0%,#100d0b 58%,#19110c 100%);
+  border:1px solid rgba(255,132,55,.28);
+  box-shadow:0 18px 48px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,180,120,.06);
+}
+#view-entry > .panel > .section-head{
+  padding-bottom:14px;border-bottom:1px solid rgba(255,132,55,.2);
+}
+#view-entry > .panel > .section-head h2{
+  letter-spacing:-.025em;text-shadow:0 0 22px rgba(255,116,23,.16);
+}
+#view-entry > .panel > .notice{
+  border-left:3px solid #ff7417;background:linear-gradient(90deg,rgba(255,116,23,.11),rgba(255,116,23,.025));
+}
+#view-entry > .panel > .panel[style*="margin-bottom"]{
+  background:linear-gradient(145deg,#19130f,#100d0b)!important;
+  border:1px solid rgba(255,132,55,.32);
+  box-shadow:0 12px 34px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,160,90,.06);
+}
+#view-entry #liveReset{border-color:rgba(255,132,55,.35);color:#ffb477}
+#view-entry .live-score{gap:14px;margin:16px 0 20px}
+#view-entry .live-player{
+  position:relative;isolation:isolate;overflow:hidden;min-width:0;
+  padding:17px;border-radius:16px;
+  background:linear-gradient(145deg,#201a16,#14110f);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 10px 26px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.035);
+  transition:border-color .22s ease,box-shadow .22s ease,transform .22s ease,background .22s ease;
+}
+#view-entry .live-player:before{
+  content:"";position:absolute;z-index:-1;inset:0 0 auto;height:2px;
+  background:linear-gradient(90deg,transparent,#ff7417,transparent);opacity:.32;
+}
+#view-entry .live-player.is-throwing{
+  border-color:#ff812d;
+  background:radial-gradient(ellipse at 50% 0,rgba(255,116,23,.17),transparent 65%),linear-gradient(145deg,#2b1b11,#17120f);
+  box-shadow:0 0 0 1px rgba(255,116,23,.25),0 0 30px rgba(255,116,23,.14),0 12px 28px rgba(0,0,0,.3);
+  transform:translateY(-2px);
+}
+#view-entry .live-player.is-throwing:before{opacity:1}
+#view-entry .live-player-top{min-height:66px;gap:14px}
+#view-entry .live-player-top .avatar-mini{
+  border:2px solid rgba(255,132,55,.65);
+  box-shadow:0 0 0 4px rgba(255,116,23,.08),0 0 18px rgba(255,116,23,.16);
+}
+#view-entry .live-player-name{font-size:clamp(1rem,2vw,1.2rem);letter-spacing:-.02em}
+#view-entry .live-player-turn{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+#view-entry .live-player.is-throwing .live-player-turn{color:#ffad70}
+#view-entry .live-player .remaining{
+  display:block;margin:9px 0 4px;font-size:clamp(2.5rem,6vw,3.35rem);
+  line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.055em;
+  color:#fff5ed;text-shadow:0 0 24px rgba(255,116,23,.13);
+}
+#view-entry .live-player.is-throwing .remaining{color:#fff0e3;text-shadow:0 0 24px rgba(255,116,23,.3)}
+#view-entry .dart-input-layout{gap:16px;margin:18px 0}
+#view-entry .dartboard-panel,
+#view-entry .dart-tools>.panel{
+  position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#1b1713,#100e0c);
+  border:1px solid rgba(255,132,55,.23);
+  border-radius:16px;padding:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035);
+}
+#view-entry .dartboard-panel .section-head{gap:8px;align-items:center;margin-bottom:10px}
+#view-entry .dartboard-panel .section-head h4{letter-spacing:.015em}
+#view-entry .dartboard-panel #dartboard{
+  filter:drop-shadow(0 12px 18px rgba(0,0,0,.36));
+  transition:filter .2s ease,transform .2s ease;
+}
+#view-entry .dartboard-panel #dartboard:active{transform:scale(.992)}
+#view-entry .dartboard-panel #dartboard .ring{transition:filter .16s ease,stroke-width .16s ease}
+#view-entry .dartboard-panel #dartboard .wire{stroke:#d8c8b9;opacity:.9}
+#view-entry #dartboardFeedback{
+  min-height:34px;margin-top:8px;padding:9px 12px;border-radius:10px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+  text-align:center;font-weight:700;
+}
+#view-entry .dart-tools{gap:12px}
+#view-entry .dart-tools>.panel h4{font-size:.92rem;letter-spacing:.01em}
+#view-entry .throw-row{gap:9px}
+#view-entry .throw-row input,
+#view-entry #resultForm input,
+#view-entry #resultForm select{
+  min-height:42px;background:#0e0c0b;border-color:#493020;color:#fff0e5;
+  border-radius:10px;
+}
+#view-entry .throw-row input:focus,
+#view-entry #resultForm input:focus,
+#view-entry #resultForm select:focus{
+  border-color:#ff8a37;box-shadow:0 0 0 3px rgba(255,116,23,.13);outline:0;
+}
+#view-entry #recordThrow{min-height:42px;padding-inline:18px}
+#view-entry .live-actions{gap:10px;margin:14px 0}
+#view-entry .live-actions button{min-height:42px}
+#view-entry #throwLog{
+  max-height:220px;padding:12px 14px;border-radius:12px;
+  background:rgba(0,0,0,.2);border:1px solid rgba(255,132,55,.16);
+  line-height:1.65;font-variant-numeric:tabular-nums;
+}
+#view-entry #resultForm{
+  margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,132,55,.2);
+}
+#view-entry #resultForm .form-grid{gap:14px}
+#view-entry #resultForm h3{
+  padding:10px 12px;border-left:3px solid #ff7417;border-radius:0 9px 9px 0;
+  background:linear-gradient(90deg,rgba(255,116,23,.1),transparent);
+}
+#view-entry #resultForm label{font-size:.82rem;color:#d2bba9;font-weight:700}
+#view-entry #resultForm .form-actions{margin-top:16px}
+@media(max-width:700px){
+  #view-entry > .panel{padding:12px}
+  #view-entry .live-score{gap:9px}
+  #view-entry .live-player{padding:13px}
+  #view-entry .live-player-top .avatar-mini{width:52px!important;height:52px!important;flex-basis:52px!important}
+  #view-entry .dartboard-panel,#view-entry .dart-tools>.panel{padding:12px}
+  #view-entry .dart-input-layout{gap:11px}
+}
+@media(max-width:430px){
+  #view-entry .live-player .remaining{font-size:2.55rem}
+  #view-entry .live-player-top{gap:10px}
+  #view-entry .live-player-name{font-size:.94rem}
+  #view-entry .live-actions{display:grid;grid-template-columns:1fr}
+  #view-entry .throw-row{align-items:stretch}
+  #view-entry .throw-row label{width:100%!important}
+  #view-entry #recordThrow{flex:0 0 auto}
+}
+@media(prefers-reduced-motion:reduce){
+  #view-entry .live-player,#view-entry .dartboard-panel #dartboard,
+  #view-entry .dartboard-panel #dartboard .ring{transition:none}
+  #view-entry .live-player.is-throwing{transform:none}
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
