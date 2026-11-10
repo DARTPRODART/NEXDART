@@ -300,6 +300,13 @@ button,input,select,textarea{max-width:100%;min-height:42px}
 <div class="panel" style="margin-bottom:14px;background:#101b1b"><div class="section-head"><h3 style="margin:0">🎯 Liczenie na bieżąco — po każdym rzucie</h3><button type="button" class="ghost" id="liveReset">Resetuj licznik</button></div>
 <div class="muted small">Wybierz pole na tarczy. Każde trafienie dodaje jedną lotkę. Trzy rzuty tworzą wizytę. Bust cofa punkty wizyty, ale zachowuje liczbę rzuconych lotek.</div>
 <div class="live-score" id="liveScore"></div>
+<div class="callmaster-panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:11px 13px;margin:10px 0;background:#21140d;border:1px solid #75401f;border-radius:12px">
+ <strong style="color:#ff9b54">🎙 CALLMASTER</strong>
+ <label style="display:flex;align-items:center;gap:7px;margin:0"><input id="callmasterEnabled" type="checkbox" checked style="width:auto"> Głos spikera</label>
+ <label style="display:flex;align-items:center;gap:7px;margin:0;min-width:150px">Głośność <input id="callmasterVolume" type="range" min="0" max="100" value="75" style="width:100px;padding:0"></label>
+ <button type="button" class="ghost" id="callmasterRepeat">Powtórz komunikat</button>
+ <span id="callmasterStatus" class="muted small">Angielski · głos systemowy</span>
+</div>
 <div class="dart-input-layout">
   <div class="dartboard-panel">
     <div class="section-head"><h4 style="margin:0">🎯 Tarcza interaktywna</h4><span class="muted small">Kliknij pole trafienia</span></div>
@@ -499,10 +506,37 @@ $('fixtureFilter').onchange=renderFixtures;$('roundFilter').onchange=renderFixtu
  const possibleVisits=(()=>{const out=new Set();const a=[...legalDartScores];for(const x of a)for(const y of a)for(const z of a)out.add(x+y+z);return out})();
  const possibleCheckouts=(()=>{const out=new Set();const a=[...legalDartScores],finishes=[...Array(20)].map((_,i)=>(i+1)*2).concat(50);for(const x of a)for(const y of a)for(const z of finishes){const n=x+y+z;if(n>0&&n<=180)out.add(n)}for(const x of a)for(const z of finishes){const n=x+z;if(n>0&&n<=180)out.add(n)}for(const z of finishes)out.add(z);return out})();
  const possibleSingleOuts=(()=>{const out=new Set(),a=[...legalDartScores];for(const x of a)for(const y of a)for(const z of a){const n=x+y+z;if(n>0&&n<=180)out.add(n)}return out})();
+ let callmasterLastMessage='';
+ function callmasterBuildMessage(pid,val,kind){
+   const name=player(pid)?.name||'Player';
+   const first=name.trim().split(/\\s+/)[0]||name;
+   if(kind==='bust')return 'No score. Bust for '+first+'.';
+   if(kind==='finish')return 'Game shot! And the leg goes to '+name+'!';
+   const calls={180:'One hundred and eighty!',140:'One hundred and forty for '+first+'!',100:'One hundred for '+first+'!',60:'Sixty!',57:'Fifty-seven!',45:'Forty-five!',26:'Twenty-six!',0:'No score!'};
+   return calls[val]||String(val)+' for '+first+'.';
+ }
+ function callmasterSpeak(message){
+   callmasterLastMessage=message;
+   const enabled=$('callmasterEnabled')?.checked!==false;
+   if(!enabled||!('speechSynthesis'in window)||!message)return;
+   window.speechSynthesis.cancel();
+   const utterance=new SpeechSynthesisUtterance(message);
+   utterance.lang='en-GB';
+   utterance.rate=0.92;
+   utterance.pitch=0.92;
+   utterance.volume=Math.max(0,Math.min(1,Number($('callmasterVolume')?.value??75)/100));
+   const voices=window.speechSynthesis.getVoices();
+   const voice=voices.find(v=>/^en-GB$/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));
+   if(voice)utterance.voice=voice;
+   window.speechSynthesis.speak(utterance);
+ }
+ $('callmasterRepeat').addEventListener('click',()=>{if(callmasterLastMessage)callmasterSpeak(callmasterLastMessage);else toast('Nie ma jeszcze komunikatu do powtórzenia.')});
+ $('callmasterEnabled').addEventListener('change',()=>{if(!$('callmasterEnabled').checked&&'speechSynthesis'in window)window.speechSynthesis.cancel()});
+ $('callmasterVolume').addEventListener('input',()=>{if('speechSynthesis'in window&&window.speechSynthesis.speaking)window.speechSynthesis.cancel()});
  function addLiveThrow(val,label='rzut'){if(!Number.isInteger(val)||!legalDartScores.has(val)){toast('Nieprawidłowy wynik pojedynczej lotki.');return}const m=state.matches.find(x=>x.id===$('matchSelect').value);if(!m)return;if(live.finished){toast('Leg został już zakończony.');return}const snapshot={scores:{...live.scores},darts:{...live.darts},points:{...live.points},checkout:{...live.checkout},visit:{...live.visit},visitScores:Object.fromEntries(Object.entries(live.visitScores).map(([k,v])=>[k,[...v]])),current:live.current,turnStart:live.turnStart,turnDarts:live.turnDarts,turnScore:live.turnScore,finished:live.finished,statsApplied:live.statsApplied,winner:$('winnerSelect').value};const pid=live.current,other=pid===m.a?m.b:m.a;const before=live.scores[pid];if(live.turnDarts===0)live.turnStart=before;live.darts[pid]++;live.turnDarts++;live.turnScore+=val;const next=before-val;const isDoubleFinish=(val>0&&val%2===0&&val<=40)||val===50;const validFinish=state.outMode!=='double'||isDoubleFinish;let msg=player(pid).name+': '+label+' ('+val+' pkt)';live.statsApplied=false;
- if(next<0||next===1||(next===0&&!validFinish)){live.scores[pid]=live.turnStart;live.visitScores[pid].push(0);msg+=' — BUST, wizyta anulowana';live.turnDarts=0;live.turnScore=0;live.current=other;}
- else if(next===0){live.scores[pid]=0;live.points[pid]+=live.turnScore;live.visitScores[pid].push(live.turnScore);live.visit[pid]=Math.max(live.visit[pid]||0,live.turnScore);live.checkout[pid]=Math.max(live.checkout[pid]||0,before);live.finished=true;live.history.push({text:msg+' — LEG WYGRANY!',snapshot});$('winnerSelect').value=pid;live.turnDarts=0;live.turnScore=0;renderLive();$('throwScore').value='';$('dartboardFeedback').textContent='Leg wygrany przez '+player(pid).name+'!';return;}
- else {live.scores[pid]=next;if(live.turnDarts===3){live.points[pid]+=live.turnScore;live.visitScores[pid].push(live.turnScore);live.visit[pid]=Math.max(live.visit[pid]||0,live.turnScore);msg+=' — koniec wizyty';live.turnDarts=0;live.turnScore=0;live.current=other;}}
+ if(next<0||next===1||(next===0&&!validFinish)){callmasterSpeak(callmasterBuildMessage(pid,val,'bust'));live.scores[pid]=live.turnStart;live.visitScores[pid].push(0);msg+=' — BUST, wizyta anulowana';live.turnDarts=0;live.turnScore=0;live.current=other;}
+ else if(next===0){callmasterSpeak(callmasterBuildMessage(pid,val,'finish'));live.scores[pid]=0;live.points[pid]+=live.turnScore;live.visitScores[pid].push(live.turnScore);live.visit[pid]=Math.max(live.visit[pid]||0,live.turnScore);live.checkout[pid]=Math.max(live.checkout[pid]||0,before);live.finished=true;live.history.push({text:msg+' — LEG WYGRANY!',snapshot});$('winnerSelect').value=pid;live.turnDarts=0;live.turnScore=0;renderLive();$('throwScore').value='';$('dartboardFeedback').textContent='Leg wygrany przez '+player(pid).name+'!';return;}
+ else {if(live.turnDarts===3){const visitTotal=live.turnScore;callmasterSpeak(callmasterBuildMessage(pid,visitTotal,'visit'));}else{callmasterSpeak(callmasterBuildMessage(pid,val,'dart'));}live.scores[pid]=next;if(live.turnDarts===3){live.points[pid]+=live.turnScore;live.visitScores[pid].push(live.turnScore);live.visit[pid]=Math.max(live.visit[pid]||0,live.turnScore);msg+=' — koniec wizyty';live.turnDarts=0;live.turnScore=0;live.current=other;}}
  live.history.push({text:msg+' · pozostało '+live.scores[pid],snapshot});$('throwScore').value='';$('dartboardFeedback').textContent='Ostatni rzut: '+val+' pkt';renderLive();}
  function recordLiveThrow(){const input=$('throwScore').value;if(input===''){toast('Wpisz wynik lotki.');return}const val=Number(input);if(!Number.isInteger(val)||!legalDartScores.has(val)){toast('Wynik musi odpowiadać prawidłowemu trafieniu na tarczy (np. 0, 20, 40, 60, 25 lub 50).');return}addLiveThrow(val,String(val));}
  function drawDartboard(){const svg=$('dartboard');if(!svg)return;const nums=[20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5],cx=180,cy=180;const pt=(r,a)=>[cx+Math.cos(a*Math.PI/180)*r,cy+Math.sin(a*Math.PI/180)*r];const wedge=(r1,r2,a1,a2)=>{const p1=pt(r1,a1),p2=pt(r2,a1),p3=pt(r2,a2),p4=pt(r1,a2);return `M ${p1[0]} ${p1[1]} L ${p2[0]} ${p2[1]} A ${r2} ${r2} 0 0 1 ${p3[0]} ${p3[1]} L ${p4[0]} ${p4[1]} A ${r1} ${r1} 0 0 0 ${p1[0]} ${p1[1]} Z`};let html='<circle cx="180" cy="180" r="151" fill="#111918"/><circle cx="180" cy="180" r="145" fill="#202927"/>';nums.forEach((n,i)=>{const center=-90+i*18,a1=center-9,a2=center+9;const col=i%2?'#171d1b':'#d9d7ca',alt=i%2?'#126746':'#bd2639';html+=`<path class="ring" d="${wedge(94,135,a1,a2)}" fill="${col}"/><path class="ring" d="${wedge(80,94,a1,a2)}" fill="${alt}"/><path class="ring" d="${wedge(16,80,a1,a2)}" fill="${col}"/><path class="ring" d="${wedge(135,145,a1,a2)}" fill="${alt}"/>`;const q=pt(160,center);html+=`<text class="number" x="${q[0]}" y="${q[1]}">${n}</text>`;});html+='<circle cx="180" cy="180" r="16" fill="#126746" stroke="#ddd" stroke-width="1.4"/><circle cx="180" cy="180" r="8" fill="#bd2639" stroke="#ddd" stroke-width="1.4"/><circle class="wire" cx="180" cy="180" r="145"/><circle class="wire" cx="180" cy="180" r="135"/><circle class="wire" cx="180" cy="180" r="94"/><circle class="wire" cx="180" cy="180" r="80"/><circle class="wire" cx="180" cy="180" r="16"/>';svg.innerHTML=html;}
