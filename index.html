@@ -277,6 +277,101 @@ button,input,select,textarea{max-width:100%;min-height:42px}
 }
 
 .live-player-top{display:flex;align-items:center;gap:13px;margin-bottom:12px;min-height:64px}.live-player-top .avatar-mini{width:64px!important;height:64px!important;flex-basis:64px!important;font-size:1rem}.live-player-name{font-size:1.05rem;font-weight:850;color:#fff0e5}.live-player-turn{font-size:.72rem;font-weight:850;letter-spacing:.08em;color:#aebfba;margin-top:3px}.live-player.is-throwing{border-color:#ff7417;box-shadow:0 0 0 1px #ff7417,0 0 22px #ff74172b;background:linear-gradient(145deg,#302014,#1b2b29)}.live-player.is-throwing .live-player-turn{color:#ff9b54}
+
+
+/* NEXDART visual polish — subtle motion, depth and accessible focus states */
+:root{
+  --nd-orange:#ff7417;
+  --nd-orange-soft:#ff9b54;
+  --nd-panel-edge:rgba(255,132,55,.22);
+  --nd-motion-fast:160ms;
+  --nd-motion:260ms;
+}
+html{scroll-behavior:smooth}
+button,.nav button,.player-card,.entry-player-card,.news-card,.home-news-item,.leaderboard-card,.report-item,.tournament-round,.stat,.panel{
+  -webkit-tap-highlight-color:transparent;
+}
+button:active:not(:disabled){transform:translateY(0) scale(.985)}
+button:focus-visible,[tabindex]:focus-visible,a:focus-visible{
+  outline:2px solid #ffad70;
+  outline-offset:3px;
+}
+.nav button{transition:background var(--nd-motion-fast) ease,border-color var(--nd-motion-fast) ease,color var(--nd-motion-fast) ease,box-shadow var(--nd-motion-fast) ease,transform var(--nd-motion-fast) ease}
+.nav button:hover:not(.active){border-color:#9b5127;color:#fff0e5;transform:translateY(-1px)}
+.panel,.stat,.player-card,.news-card,.leaderboard-card,.report-item,.rating-panel,.xp-panel,.dartboard-panel,.tournament-round{
+  transition:border-color var(--nd-motion) ease,box-shadow var(--nd-motion) ease,background-color var(--nd-motion) ease;
+}
+.panel:hover,.dartboard-panel:hover{
+  border-color:var(--nd-panel-edge);
+}
+.stat{
+  background-image:radial-gradient(ellipse at 100% 0%,rgba(255,116,23,.075),transparent 58%),linear-gradient(145deg,#171412,#100e0d);
+}
+.stat:hover{
+  border-color:#8b4a24;
+  box-shadow:0 10px 28px #0007,0 0 18px #ff74171c;
+}
+.stat .value{transition:text-shadow var(--nd-motion) ease,color var(--nd-motion) ease}
+.stat:hover .value{text-shadow:0 0 16px #ff741755}
+.player-card,.news-card,.home-news-item,.entry-player-card,.leaderboard-card,.report-item,.tournament-round{
+  transition:transform var(--nd-motion) cubic-bezier(.2,.7,.2,1),border-color var(--nd-motion) ease,box-shadow var(--nd-motion) ease;
+}
+.player-card:hover,.news-card[data-article-open]:hover,.home-news-item:hover,.leaderboard-card:hover,.report-item:hover{
+  transform:translateY(-2px);
+  border-color:#a65325;
+  box-shadow:0 12px 26px #0006,0 0 18px #ff741711;
+}
+.entry-player-card:hover:not(:disabled){border-color:#b45b2b;transform:translateY(-1px)}
+tbody tr{transition:background-color var(--nd-motion-fast) ease}
+tbody tr:hover{background:rgba(255,116,23,.055)}
+.score,.pill,.rank,.form-badge,.rating-chip,.xp-chip{transition:filter var(--nd-motion-fast) ease,box-shadow var(--nd-motion-fast) ease}
+.top{isolation:isolate}
+.top:before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:42%;
+  height:180%;
+  top:-40%;
+  right:-12%;
+  background:radial-gradient(ellipse,rgba(255,116,23,.12),transparent 68%);
+  pointer-events:none;
+}
+.top:after{animation:ndGlowLine 5.5s ease-in-out infinite}
+.logo{transition:transform var(--nd-motion) ease,box-shadow var(--nd-motion) ease}
+.logo:hover{transform:rotate(-4deg) scale(1.035);box-shadow:0 0 12px #ff7417,0 0 30px #ff741766,inset 0 0 10px #fff3}
+.view.active > .stats,
+.view.active > .panel,
+.view.active > .grid2,
+.view.active > .home-news,
+.view.active > .section-head,
+.view.active > .report-grid{
+  animation:ndViewEnter .38s cubic-bezier(.2,.7,.2,1) both;
+}
+.view.active > :nth-child(2){animation-delay:35ms}
+.view.active > :nth-child(3){animation-delay:70ms}
+.view.active > :nth-child(4){animation-delay:105ms}
+@keyframes ndViewEnter{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes ndGlowLine{
+  0%,100%{opacity:.72;filter:brightness(.9)}
+  50%{opacity:1;filter:brightness(1.25)}
+}
+.toast{animation:ndToastIn .22s cubic-bezier(.2,.8,.2,1) both}
+@keyframes ndToastIn{
+  from{opacity:0;transform:translate(-50%,8px) scale(.98)}
+  to{opacity:1;transform:translate(-50%,0) scale(1)}
+}
+@media(hover:none){
+  .stat:hover,.player-card:hover,.news-card[data-article-open]:hover,.home-news-item:hover,.leaderboard-card:hover,.report-item:hover{transform:none;box-shadow:none}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
 </style></head>
 <body><main class="app"><div class="wrap">
 <div id="siteBannerWrap" class="site-banner-wrap hidden"><img id="siteBanner" alt="Baner ligi NEXDART"></div><header class="top"><div class="brand"><div class="logo">🎯</div><div><div class="eyebrow">PUB LEAGUE · SEZON 01</div><h1>NEXDART</h1><p>301 · 1 leg · single-out · każdy z każdym + rewanż</p></div></div><div class="top-actions"></div></header>
