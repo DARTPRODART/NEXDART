@@ -5,6 +5,13 @@ export default async (request) => {
     if (request.method === "GET") {
       const admin = await isAdmin(request);
       const filter = admin ? "" : "&published=eq.true";
+      const params = new URL(request.url).searchParams;
+      if (params.get("meta") === "1") {
+        const metaResponse = await dbRequest(`league_articles?select=id,published,updated_at&order=updated_at.desc${filter}`);
+        if (!metaResponse.ok) { console.error("Supabase articles metadata read failed", metaResponse.status, await metaResponse.text()); return json({ error: "Nie udało się pobrać statusu aktualności." }, 502); }
+        const metaRows = await metaResponse.json();
+        return json(metaRows.map(row => ({ id: row.id, published: !!row.published, updated_at: row.updated_at })));
+      }
       const response = await dbRequest(`league_articles?select=id,article,published,date,pinned,updated_at&order=updated_at.desc${filter}`);
       if (!response.ok) { console.error("Supabase articles read failed", response.status, await response.text()); return json({ error: "Nie udało się pobrać aktualności." }, 502); }
       const rows = await response.json();
