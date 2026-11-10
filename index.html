@@ -493,7 +493,7 @@ function createCup(){
   const byeCount=size-n,byePlayers=ids.slice(0,byeCount),remaining=ids.slice(byeCount);
   let current=byePlayers.map(pid=>({id:id(),a:pid,b:'',winner:pid,bye:true}));
   for(let i=0;i<remaining.length;i+=2)current.push({id:id(),a:remaining[i],b:remaining[i+1],winner:''});
-  current=shuffleCupIds(current.map((_,i)=>String(i))).map(i=>current[Number(i)]);
+  current=shuffleCupIds(current);
   const rounds=[current];
   while(current.length>1){const next=[];for(let i=0;i<current.length;i+=2){const prevA=current[i],prevB=current[i+1];next.push({id:id(),a:prevA?.winner||'',b:prevB?.winner||'',winner:''})}rounds.push(next);current=next}
   tournamentPreview={id:'cup'+Math.random().toString(36).slice(2,9),name,players:ids,rounds,format:'knockout',byeCount,createdAt:new Date().toISOString().slice(0,10)};
@@ -507,10 +507,10 @@ function renderCupDrawPreview(){
  const cup=tournamentPreview;box.classList.remove('hidden');if(start)start.disabled=false;if(reroll)reroll.disabled=false;
  const names=cup.players.map((pid,i)=>'<span class="pill">'+(i+1)+'. '+esc(player(pid).name)+'</span>').join(' ');
  let content='<h3 style="margin-top:0">Podgląd losowania: '+esc(cup.name)+'</h3><div class="muted small">Uczestnicy wylosowani do tego turnieju — po zatwierdzeniu skład i pary zostaną zapisane.</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 16px">'+names+'</div>';
- if(cup.groups?.length){content+='<div class="grid2">'+cup.groups.map(g=>'<div class="tournament-round"><h4>'+esc(g.name)+'</h4>'+g.players.map((pid,i)=>'<div class="upcoming"><span>'+(i+1)+'. '+playerInline(pid)+'</span></div>').join('')+'<div class="muted small" style="margin-top:8px">'+g.matches.length+' meczów w grupie</div></div>').join('')+'</div>'}
+ if(cup.groups?.length){content+='<div class="grid2">'+cup.groups.map(g=>'<div class="tournament-round"><h4>'+esc(g.name)+'</h4>'+g.players.map((pid,i)=>'<div class="upcoming"><span>'+(i+1)+'. '+playerInline(pid)+'</span></div>').join('')+'<h4>Wylosowane mecze</h4>'+g.matches.map((m,i)=>'<div class="tournament-match"><span class="muted small">Mecz '+(i+1)+'</span><div>'+playerInline(m.a)+' <span class="muted">vs</span> '+playerInline(m.b)+'</div></div>').join('')+'</div>').join('')+'</div>'}
  else{
   content+='<div class="notice">Liczba wolnych losów: <b>'+cup.byeCount+'</b>. Awans bez meczu otrzymają tylko osoby wskazane poniżej. Puste miejsca w kolejnych rundach oznaczają oczekiwanie na zwycięzców, a nie dodatkowe wolne losy.</div><h4>Pierwsza runda</h4><div class="grid2">'+cup.rounds[0].map((m,i)=>'<div class="tournament-round"><div class="muted small">Mecz '+(i+1)+'</div>'+(m.b?'<div><b>'+playerInline(m.a)+'</b> <span class="muted">vs</span> <b>'+playerInline(m.b)+'</b></div>':'<div><b>'+playerInline(m.a)+'</b></div><span class="pill done">AWANS BEZ MECZU</span>')+'</div>').join('')+'</div>';
-  if(cup.rounds.length>1)content+='<h4>Kolejne rundy — układ drabinki</h4><div style="display:flex;gap:10px;overflow:auto">'+cup.rounds.slice(1).map((round,i)=>'<div class="tournament-round"><b>'+(i===cup.rounds.length-2?'Finał':'Runda '+(i+2))+'</b>'+round.map((m,j)=>'<div class="tournament-match">'+(m.a?player(m.a).name:'Zwycięzca meczu '+(j*2+1))+' <span class="muted">vs</span> '+(m.b?player(m.b).name:'Zwycięzca meczu '+(j*2+2))+'</div>').join('')+'</div>').join('')+'</div>';
+  if(cup.rounds.length>1)content+='<h4>Kolejne rundy — układ drabinki</h4><div style="display:flex;gap:10px;overflow:auto">'+cup.rounds.slice(1).map((round,i)=>'<div class="tournament-round"><b>'+((i+1)===cup.rounds.length-1?'Finał':(i+1)===cup.rounds.length-2?'Półfinały':'Runda '+(i+2))+'</b>'+round.map((m,j)=>'<div class="tournament-match">'+(m.a?player(m.a).name:'Zwycięzca meczu '+(j*2+1))+' <span class="muted">vs</span> '+(m.b?player(m.b).name:'Zwycięzca meczu '+(j*2+2))+'</div>').join('')+'</div>').join('')+'</div>';
  }
  box.innerHTML=content;
 }
