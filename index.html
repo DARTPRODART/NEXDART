@@ -497,6 +497,25 @@ function renderPlayerTrophies(pid){
  if(!trophies.length)return '<div class="empty">Trofea pojawią się po zakończonych sezonach i turniejach.</div>';
  return trophies.map(t=>'<div class="upcoming"><div><b>🏆 '+esc(t.title)+'</b><div class="muted small">'+esc(t.season)+(t.date?' · '+esc(t.date):'')+'</div><div class="small">'+esc(t.detail)+'</div></div><span class="pill done">Trofeum</span></div>').join('');
 }
+function renderArchiveDetails(arc,rank){
+ const people=Array.isArray(arc.players)&&arc.players.length?arc.players:(arc.allPlayers||[]);
+ const nameOf=id=>people.find(p=>p.id===id)?.name||'Nieznany zawodnik';
+ const matches=(arc.matches||[]).filter(m=>m.played&&m.winner).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||a.round-b.round);
+ const statsRows=rank.map((p,i)=>{
+  const ms=matches.filter(m=>m.a===p.id||m.b===p.id),visits=ms.flatMap(m=>Array.isArray(m.stats?.[p.id]?.visitScores)?m.stats[p.id].visitScores:[]);
+  const best=ms.map(m=>m.stats?.[p.id]||{}).filter(x=>Number(x.checkout)>0).sort((a,b)=>Number(b.checkout)-Number(a.checkout))[0];
+  const hundreds=visits.filter(v=>Number(v)>=100).length,oneForties=visits.filter(v=>Number(v)>=140).length,oneEighties=visits.filter(v=>Number(v)===180).length;
+  return '<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+p.played+'</td><td>'+p.wins+'–'+p.losses+'</td><td>'+fmt(p.avg)+'</td><td>'+(p.checkout||'—')+(best?.checkoutSequence?'<div class="muted small">'+esc(best.checkoutSequence)+'</div>':'')+'</td><td>'+ (visits.length?oneEighties:'—')+'</td><td>'+(visits.length?oneForties:'—')+'</td><td>'+(visits.length?hundreds:'—')+'</td></tr>';
+ }).join('');
+ const resultRows=matches.map(m=>{
+  const a=m.stats?.[m.a]||{},b=m.stats?.[m.b]||{};
+  const detail=st=>[st.points!=null?st.points+' pkt':'',st.darts!=null?st.darts+' lotek':'',st.checkout?('checkout '+st.checkout+(st.checkoutSequence?' ('+st.checkoutSequence+')':'')):''].filter(Boolean).join(' · ')||'Brak szczegółowych statystyk';
+  return '<tr><td>'+esc(m.date||'—')+'</td><td>'+esc(nameOf(m.a))+' <span class="muted">vs</span> '+esc(nameOf(m.b))+'</td><td><b>'+esc(nameOf(m.winner))+'</b></td><td><div>'+esc(detail(a))+'</div><div class="muted small">'+esc(detail(b))+'</div></td></tr>';
+ }).join('');
+ const achievements=people.flatMap(p=>(p.achievements||[]).filter(a=>(!a.season||a.season===arc.seasonName)).map(a=>({player:p.name,...a})));
+ const achievementHtml=achievements.length?achievements.map(a=>'<div class="upcoming"><span><b>'+esc(a.title)+'</b><span class="subline">'+esc(a.player)+' · '+esc(a.season||arc.seasonName||'')+(a.date?' · '+esc(a.date):'')+'</span>'+(a.detail?'<div class="muted small">'+esc(a.detail)+'</div>':'')+'</span></div>').join(''):'<div class="empty">W archiwum nie zapisano dodatkowych osiągnięć zawodników.</div>';
+ return '<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:700;padding:10px 0">Pełne archiwum: tabela, wyniki, statystyki i osiągnięcia</summary><h4>Tabela końcowa</h4><div class="table-wrap"><table><thead><tr><th>#</th><th>Zawodnik</th><th>M</th><th>W–P</th><th>Śr./3 lotki</th><th>Checkout</th><th>180</th><th>140+</th><th>100+</th></tr></thead><tbody>'+statsRows+'</tbody></table></div><h4>Wyniki i statystyki meczów</h4><div class="table-wrap"><table><thead><tr><th>Data</th><th>Mecz</th><th>Zwycięzca</th><th>Statystyki A / B</th></tr></thead><tbody>'+(resultRows||'<tr><td colspan="4">Brak rozegranych meczów.</td></tr>')+'</tbody></table></div><h4>Osiągnięcia sezonu</h4><div class="achievement-list">'+achievementHtml+'</div></details>';
+}
 function renderHall(){
  const box=$('hallContent');
  const archives=(state.archives||[]).slice().reverse();
@@ -505,7 +524,7 @@ function renderHall(){
   if(!rank.length)return '';
   const podium=rank.slice(0,3).map((p,i)=>'<div class="upcoming"><span><b>'+(i===0?'🥇':i===1?'🥈':'🥉')+' '+(i+1)+'. '+esc(p.name||'Zawodnik')+'</b><span class="subline">'+p.wins+' wygranych · '+p.leaguePoints+' pkt ligowych</span></span><span class="pill '+(i===0?'done':'')+'">'+['Mistrz','Wicemistrz','3. miejsce'][i]+'</span></div>').join('');
   const avg=rank.filter(p=>p.avg!=null).sort((a,b)=>b.avg-a.avg)[0],co=rank.filter(p=>p.checkout>0).sort((a,b)=>b.checkout-a.checkout)[0];
-  return '<section style="margin-top:16px"><div class="section-head"><h3>🏆 '+esc(arc.seasonName||'Sezon archiwalny')+'</h3><span class="muted small">'+esc(arc.archivedAt||'')+' · '+matches.filter(m=>m.played&&m.winner).length+'/'+matches.length+' meczów</span></div>'+(complete?'<div class="stats"><div class="stat"><div class="label">Najwyższa średnia 3 lotek</div><div class="value">'+(avg?fmt(avg.avg):'—')+'</div><div class="note">'+esc(avg?.name||'Brak danych')+'</div></div><div class="stat"><div class="label">Najwyższy checkout</div><div class="value">'+(co?co.checkout:'—')+'</div><div class="note">'+esc(co?.name||'Brak danych')+'</div></div></div>':'<div class="notice">Archiwum nie zawiera kompletu rozstrzygniętych spotkań — pokazujemy dostępną klasyfikację, ale nie potwierdzamy tytułów.</div>')+'<div class="achievement-list">'+(complete?podium:'<div class="empty">Brak pełnej tabeli końcowej.</div>')+'</div></section>';
+  return '<section style="margin-top:16px"><div class="section-head"><h3>🏆 '+esc(arc.seasonName||'Sezon archiwalny')+'</h3><span class="muted small">'+esc(arc.archivedAt||'')+' · '+matches.filter(m=>m.played&&m.winner).length+'/'+matches.length+' meczów</span></div>'+(complete?'<div class="stats"><div class="stat"><div class="label">Najwyższa średnia 3 lotek</div><div class="value">'+(avg?fmt(avg.avg):'—')+'</div><div class="note">'+esc(avg?.name||'Brak danych')+'</div></div><div class="stat"><div class="label">Najwyższy checkout</div><div class="value">'+(co?co.checkout:'—')+'</div><div class="note">'+esc(co?.name||'Brak danych')+'</div></div></div>':'<div class="notice">Archiwum nie zawiera kompletu rozstrzygniętych spotkań — pokazujemy dostępną klasyfikację, ale nie potwierdzamy tytułów.</div>')+'<div class="achievement-list">'+(complete?podium:'<div class="empty">Brak pełnej tabeli końcowej.</div>')+'</div>'+renderArchiveDetails(arc,rank)+'</section>';
  }).filter(Boolean).join('');
  const currentComplete=state.matches.length>0&&state.matches.every(m=>m.played&&m.winner);
  let current='';
